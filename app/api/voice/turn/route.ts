@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 import { runTurn, toyChat } from "@/lib/agents";
-import { asr, tts, spokenText, ttsReady, voiceGuide } from "@/lib/voice";
+import { asr, tts, ttsMime, spokenText, ttsReady, voiceGuide } from "@/lib/voice";
 
 // POST /api/voice/turn —— 语音一站式对话轮次：「听 → 想 → 说」一次完成
 //
@@ -93,8 +93,8 @@ export async function POST(req: NextRequest) {
     const spoken = spokenText(replyText);
     if (ttsReady() && spoken) {
       try {
-        const mp3 = await tts(spoken);
-        audio = `data:audio/mp3;base64,${mp3.toString("base64")}`;
+        const buf = await tts(spoken);
+        audio = `data:${ttsMime()};base64,${buf.toString("base64")}`;
       } catch {
         audioGuide = "语音合成失败，已回退为纯文本";
       }

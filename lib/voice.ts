@@ -35,14 +35,46 @@ export const voiceReady = () => asrReady() || ttsReady();
 export const voiceGuide = () =>
   "在 .env.local 配置 DASHSCOPE_API_KEY（阿里云百炼，免费），或指向自部署服务：VOICE_ASR_BASE_URL（FunASR）/ VOICE_TTS_BASE_URL（CosyVoice）。模型/音色可用 XINGTONG_TTS_MODEL、XINGTONG_TTS_VOICE、XINGTONG_ASR_MODEL 覆盖。详见 docs/VOICE_TOY.md 与 docs/OPENSOURCE_STACK.md";
 
+// qwen3-tts 原生接口返回 WAV；/audio/speech 路线返回 MP3
+export const ttsMime = () => (TTS_MODEL.includes("qwen3-tts") ? "audio/wav" : "audio/mpeg");
+
 // 孩子话术中的【动作】标注不应被读出来
 export function spokenText(text: string): string {
   return text.replace(/【[^】]*】/g, "").replace(/\s+/g, " ").trim();
 }
 
-// 文本 → 语音（返回 mp3 字节）
+// 文本 → 语音（返回音频字节；MIME 用 ttsMime() 获取）
 export async function tts(text: string, voice?: string): Promise<Buffer> {
   if (!TTS_KEY) throw new VoiceUnavailable();
+
+  // qwen3-tts 路线：走原生 DashScope multimodal-generation 接口。
+  // 百炼工作区网关（ws-*.maas.aliyuncs.com）无 /audio/speech 路由且会丢弃内联音频，
+  // 但原生接口返回的限时 OSS URL 可正常下载（公共 DashScope 同样支持此接口）。
+  if (TTS_MODEL.includes("qwen3-tts")) {
+    const host = TTS_BASE.replace(/\/compatible-mode\/v1$/, "").replace(/\/v1$/, "");
+    const res = await fetch(`${host}/api/v1/services/aigc/multimodal-generation/generation`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${TTS_KEY}` },
+      body: JSON.stringify({
+        model: TTS_MODEL,
+        input: { text, voice: voice ?? TTS_VOICE },
+      }),
+    });
+    const data = await res.json().catch(() => ({}) as Record<string, never>);
+    if (!res.ok) {
+      const msg = (data as { message?: string })?.message ?? (data as { error?: { message?: string } })?.error?.message ?? "";
+      throw new Error(
+        `TTS 调用失败 ${res.status}: ${String(msg).slice(0, 200)}（可用 XINGTONG_TTS_MODEL / XINGTONG_TTS_VOICE 调整模型与音色）`
+      );
+    }
+    const url = (data as { output?: { audio?: { url?: string } } })?.output?.audio?.url;
+    if (!url) throw new Error("TTS 未返回音频地址");
+    const audio = await fetch(url);
+    if (!audio.ok) throw new Error(`TTS 音频下载失败 ${audio.status}`);
+    return Buffer.from(await audio.arrayBuffer());
+  }
+
+  // 标准 OpenAI 兼容路线：/audio/speech（cosyvoice-v1 / 自部署 CosyVoice）
   const res = await fetch(`${TTS_BASE}/audio/speech`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${TTS_KEY}` },
