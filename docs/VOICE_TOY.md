@@ -76,7 +76,9 @@ XINGTONG_ASR_MODEL=sensevoice-v1
 | 电源 | 3.7V 锂电池 + Type-C 充电 | 便携 | ¥15 |
 | 表达层 | 舵机×2（耳朵）+ RGB 呼吸灯 | `action` 字段驱动 | ¥20 |
 
-开源参考：立创开源硬件平台已有「ESP32 直接对话大语言模型」完整工程（原理图 + PCB + 固件，讯飞 ASR + 豆包 LLM，响应 3s 内）（[立创开源硬件平台: 2024-06-27](http://mp.weixin.qq.com/s?__biz=Mzg4NzYzODIwMA==&mid=2247625586&idx=1&sn=b2687f61eb93a1b5a0de7c902b64de69)）。
+**固件不需要从零写**：直接基于 **[78/xiaozhi-esp32](https://github.com/78/xiaozhi-esp32)**（29.4k★，ESP32 开源 AI 机器人事实标准）编译，服务器地址指向我们的部署即可——对话流量经 `/api/voice/turn` 进入小星大脑。规模化后的设备管理/OTA/音色管理参考 [xinnan-tech/xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)（10.5k★，JS 技术栈一致）。完整接入清单见 [OPENSOURCE_STACK.md](OPENSOURCE_STACK.md)。
+
+另一开源参考：立创开源硬件平台「ESP32 直接对话大语言模型」完整工程（原理图 + PCB + 固件，讯飞 ASR + 豆包 LLM，响应 3s 内）（[立创开源硬件平台: 2024-06-27](http://mp.weixin.qq.com/s?__biz=Mzg4NzYzODIwMA==&mid=2247625586&idx=1&sn=b2687f61eb93a1b5a0de7c902b64de69)）。
 
 ### 3.2 接入协议（已实现，固件只管调）
 

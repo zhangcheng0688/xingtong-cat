@@ -13,6 +13,8 @@
 - **语音与 AI 玩具**：语音层（ASR/TTS）与干预大脑解耦的级联架构；演练页支持语音朗读与语音输入；
   玩具端一站式端点 `POST /api/voice/turn`（听→想→说一次完成）+ 第 6 位专家「小星玩伴」Agent；
   声音模型选型、ESP32 硬件方案与接入协议见 [docs/VOICE_TOY.md](docs/VOICE_TOY.md)
+- **开源选型**：玩具固件基于 xiaozhi-esp32 生态（29k★），语音支持 FunASR/CosyVoice 自部署切换；
+  全链路采纳/不采纳决策清单见 [docs/OPENSOURCE_STACK.md](docs/OPENSOURCE_STACK.md)
 
 ## 设计系统
 

@@ -14,16 +14,26 @@ const TTS_MODEL = process.env.XINGTONG_TTS_MODEL ?? "cosyvoice-v1";
 const TTS_VOICE = process.env.XINGTONG_TTS_VOICE ?? "longwan";
 const ASR_MODEL = process.env.XINGTONG_ASR_MODEL ?? "sensevoice-v1";
 
+// ASR 与 TTS 可分别指向不同服务——同一套代码通吃三种部署形态：
+// ① 云端百炼（默认）② 自部署 FunASR（20k★，OpenAI 兼容 /audio/transcriptions）
+// ③ 自部署 CosyVoice（23k★，经社区 API 包装）。见 docs/OPENSOURCE_STACK.md
+const ASR_BASE = (process.env.VOICE_ASR_BASE_URL ?? DASH_BASE).replace(/\/$/, "");
+const ASR_KEY = process.env.VOICE_ASR_API_KEY ?? DASH_KEY;
+const TTS_BASE = (process.env.VOICE_TTS_BASE_URL ?? DASH_BASE).replace(/\/$/, "");
+const TTS_KEY = process.env.VOICE_TTS_API_KEY ?? DASH_KEY;
+
 export class VoiceUnavailable extends Error {
   constructor() {
     super("云端语音未配置");
   }
 }
 
-export const voiceReady = () => Boolean(DASH_KEY);
+export const asrReady = () => Boolean(ASR_KEY);
+export const ttsReady = () => Boolean(TTS_KEY);
+export const voiceReady = () => asrReady() || ttsReady();
 
 export const voiceGuide = () =>
-  "在 .env.local 中配置 DASHSCOPE_API_KEY 即可启用云端语音（阿里云百炼控制台领取免费额度）；模型/音色可用 XINGTONG_TTS_MODEL、XINGTONG_TTS_VOICE、XINGTONG_ASR_MODEL 覆盖。详见 docs/VOICE_TOY.md";
+  "在 .env.local 配置 DASHSCOPE_API_KEY（阿里云百炼，免费），或指向自部署服务：VOICE_ASR_BASE_URL（FunASR）/ VOICE_TTS_BASE_URL（CosyVoice）。模型/音色可用 XINGTONG_TTS_MODEL、XINGTONG_TTS_VOICE、XINGTONG_ASR_MODEL 覆盖。详见 docs/VOICE_TOY.md 与 docs/OPENSOURCE_STACK.md";
 
 // 孩子话术中的【动作】标注不应被读出来
 export function spokenText(text: string): string {
@@ -32,10 +42,10 @@ export function spokenText(text: string): string {
 
 // 文本 → 语音（返回 mp3 字节）
 export async function tts(text: string, voice?: string): Promise<Buffer> {
-  if (!DASH_KEY) throw new VoiceUnavailable();
-  const res = await fetch(`${DASH_BASE}/audio/speech`, {
+  if (!TTS_KEY) throw new VoiceUnavailable();
+  const res = await fetch(`${TTS_BASE}/audio/speech`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${DASH_KEY}` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${TTS_KEY}` },
     body: JSON.stringify({
       model: TTS_MODEL,
       input: text,
@@ -54,13 +64,13 @@ export async function tts(text: string, voice?: string): Promise<Buffer> {
 
 // 语音 → 文本（一句话/短音频识别）
 export async function asr(audio: Buffer, filename = "audio.wav"): Promise<string> {
-  if (!DASH_KEY) throw new VoiceUnavailable();
+  if (!ASR_KEY) throw new VoiceUnavailable();
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(audio)]), filename);
   form.append("model", ASR_MODEL);
-  const res = await fetch(`${DASH_BASE}/audio/transcriptions`, {
+  const res = await fetch(`${ASR_BASE}/audio/transcriptions`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${DASH_KEY}` },
+    headers: { Authorization: `Bearer ${ASR_KEY}` },
     body: form,
   });
   const data = await res.json().catch(() => ({}) as Record<string, { message?: string } | undefined>);
