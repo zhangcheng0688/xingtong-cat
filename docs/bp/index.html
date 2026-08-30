@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>星童猫咪 · 融资路演材料 2026</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --cream: #FAF6EE; --paper: #FFFDF7; --night: #3D362C; --ink: #4A4238;
+    --muted: #7A6F63; --star: #F0B429; --stardeep: #DE911D; --teal: #7FBEC7;
+    --tealdeep: #4E8A93; --sage: #5E9387; --rose: #D4755E; --line: #EDE6D6;
+  }
+  body { font-family: -apple-system, "Yuanti SC", "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--ink); }
+  .serif { font-family: "Songti SC", "STSong", serif; }
+  .page {
+    width: 1280px; height: 720px; page-break-after: always; position: relative;
+    background: var(--cream); padding: 56px 72px 64px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .page:last-child { page-break-after: avoid; }
+
+  /* 页眉页脚 */
+  .kicker { font-size: 13px; letter-spacing: 6px; font-weight: 700; color: var(--stardeep); }
+  .kicker.teal { color: var(--tealdeep); }
+  .kicker.rose { color: var(--rose); }
+  .pageno { position: absolute; right: 56px; bottom: 28px; font-size: 12px; color: var(--muted); }
+  .brandmark { position: absolute; left: 72px; bottom: 24px; font-size: 12px; color: var(--muted); }
+  h1.title { font-family: "Songti SC", serif; font-size: 40px; color: var(--night); margin-top: 10px; line-height: 1.3; }
+  h1.title .em { color: var(--stardeep); }
+  .subtitle { font-size: 17px; color: var(--muted); margin-top: 8px; line-height: 1.7; }
+
+  /* 卡片与组件 */
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 24px 28px; box-shadow: 0 4px 24px rgba(74,66,56,.06); }
+  .card-dark { background: var(--night); color: var(--paper); border: none; }
+  .chip { display: inline-block; border-radius: 999px; padding: 3px 14px; font-size: 12.5px; font-weight: 600; background: #EDF4F0; color: var(--sage); }
+  .chip-star { background: rgba(240,180,41,.14); color: var(--stardeep); }
+  .chip-teal { background: #EAF5F6; color: var(--tealdeep); }
+  .chip-rose { background: #F9ECE7; color: var(--rose); }
+  .bignum { font-family: "Songti SC", serif; font-size: 52px; color: var(--night); line-height: 1.05; }
+  .bignum .unit { font-size: 22px; color: var(--muted); }
+  .src { font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .row { display: flex; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  /* 封面 */
+  .cover { background: radial-gradient(1200px 700px at 78% 18%, rgba(240,180,41,.16), transparent 60%), var(--cream); }
+  .cover .ip { position: absolute; right: 84px; bottom: 60px; width: 380px; }
+  .cover h1 { font-family: "Songti SC", serif; font-size: 64px; color: var(--night); line-height: 1.25; }
+  .cover .en { letter-spacing: 10px; font-size: 15px; color: var(--stardeep); font-weight: 700; }
+  .cover .route { display: inline-flex; align-items: center; gap: 10px; margin-top: 30px; }
+  .cover .route .pill { border-radius: 999px; padding: 8px 22px; font-size: 15px; font-weight: 600; }
+  .pill-soft { background: var(--night); color: var(--paper); }
+  .pill-hard { background: rgba(240,180,41,.16); color: var(--stardeep); border: 1px solid rgba(240,180,41,.5); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12.5px; color: var(--muted); font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.6; }
+  tr.me td { background: rgba(240,180,41,.08); font-weight: 600; }
+  .good { color: var(--sage); font-weight: 700; }
+  .bad { color: var(--muted); }
+
+  /* 架构图 */
+  .flow { display: flex; align-items: stretch; gap: 12px; }
+  .flow .node { flex: 1; background: var(--paper); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; font-size: 13px; line-height: 1.55; }
+  .flow .node b { display: block; font-size: 14.5px; color: var(--night); margin-bottom: 4px; }
+  .flow .arrow { align-self: center; color: var(--stardeep); font-size: 20px; font-weight: 700; }
+  .node-dark { background: var(--night) !important; color: var(--paper); border: none !important; }
+  .node-dark b { color: var(--star) !important; }
+  .node-star { background: rgba(240,180,41,.1) !important; border-color: rgba(240,180,41,.5) !important; }
+
+  .img-full { width: 100%; border-radius: 20px; display: block; }
+  .img-shadow { box-shadow: 0 12px 48px rgba(74,66,56,.14); }
+  .figure-cap { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  .endpage { background: var(--night); color: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .endpage h1 { font-family: "Songti SC", serif; font-size: 52px; line-height: 1.4; }
+  .endpage .en { letter-spacing: 8px; color: var(--star); font-size: 14px; margin-top: 18px; }
+</style>
+</head>
+<body>
+
+<!-- P1 封面 -->
+<section class="page cover">
+  <div class="kicker">融资路演材料 · 2026</div>
+  <div style="margin-top:56px">
+    <div class="en">CARE AUTISM TOGETHER</div>
+    <h1 style="margin-top:14px">星童猫咪</h1>
+    <div class="serif" style="font-size:30px;color:var(--ink);margin-top:10px">AI 驱动的自闭症家庭干预伙伴</div>
+    <div style="font-size:17px;color:var(--muted);margin-top:14px">软件小程序已上线跑通 · 硬件原型与技术链路就绪<br>软硬一体，让每个家庭都请得起一位「懂孩子的干预专家」</div>
+    <div class="route">
+      <span class="pill pill-soft">第一步 · 软件已上线 ✓</span>
+      <span style="color:var(--stardeep);font-weight:700">→</span>
+      <span class="pill pill-hard">第二步 · 硬件原型已就绪</span>
+    </div>
+  </div>
+  <img class="ip" src="assets/ip-xiaoxing.png" alt="小星 IP 形象">
+  <div style="position:absolute;left:72px;bottom:28px;font-size:13px;color:var(--muted)">Peter 张程 · +86 13159877586 / +852 44358635</div>
+</section>
+
+<!-- P2 市场机会 -->
+<section class="page">
+  <div class="kicker">市场机会 · MARKET</div>
+  <h1 class="title">一个庞大而长期被忽视的人群</h1>
+  <div class="grid3" style="margin-top:44px">
+    <div class="card">
+      <div class="bignum">1300<span class="unit"> 万+</span></div>
+      <div style="font-weight:600;margin-top:8px">中国自闭症谱系障碍人群</div>
+      <div class="src" style="margin-top:6px">中国残联 2023 年残疾人普查口径</div>
+    </div>
+    <div class="card">
+      <div class="bignum">300-500<span class="unit"> 万</span></div>
+      <div style="font-weight:600;margin-top:8px">0-14 岁儿童患者</div>
+      <div class="src" style="margin-top:6px">《中国自闭症教育康复行业发展状况报告》</div>
+    </div>
+    <div class="card">
+      <div class="bignum">20<span class="unit"> 万/年</span></div>
+      <div style="font-weight:600;margin-top:8px">新增患者速度</div>
+      <div class="src" style="margin-top:6px">美国 CDC（2025）：每 36 名儿童中即有 1 名确诊</div>
+    </div>
+  </div>
+  <div class="card card-dark" style="margin-top:24px;padding:20px 28px">
+    <div class="serif" style="font-size:20px">诊断率提升 + 公众认知增强，<span style="color:var(--star)">家庭干预需求正在快速显性化</span></div>
+  </div>
+  <div class="src" style="margin-top:auto">数据来源：中国新闻网 ·《2025 年度儿童发展障碍康复行业蓝皮书》；智研咨询（2025-12）；美国 CDC（2025）</div>
+  <div class="pageno">星童猫咪 · 02</div>
+</section>
+
+<!-- P3 痛点 -->
+<section class="page">
+  <div class="kicker rose">痛点 · PROBLEM</div>
+  <h1 class="title">家庭干预，卡在「人」上</h1>
+  <div class="row" style="gap:20px;margin-top:36px">
+    <div class="card" style="flex:0 0 300px">
+      <div class="bignum" style="color:var(--rose)">1:130</div>
+      <div style="font-weight:600;margin-top:8px">残联在册康复教师与患儿比例</div>
+      <div class="src" style="margin-top:8px">30 万康复人才缺口 · 每周最低 40 小时干预强度，持续 2-3 年</div>
+    </div>
+    <div style="flex:1;display:grid;gap:14px">
+      <div class="card" style="padding:18px 24px"><b>孩子不愿沟通，家长难以理解</b><div class="src" style="margin-top:4px;font-size:12.5px">他们有正常的听力，却对亲人的呼唤无动于衷；家长难以沟通，更难共情孩子的世界。</div></div>
+      <div class="card" style="padding:18px 24px"><b>家长缺乏专业知识，容易错误干预</b><div class="src" style="margin-top:4px;font-size:12.5px">不合理的干预反而加剧病情；52.4% 的家庭有一人放弃工作全职照看，身心与经济双重承压。</div></div>
+      <div class="card" style="padding:18px 24px"><b>专业机构缺口大、价格高、不及时</b><div class="src" style="margin-top:4px;font-size:12.5px">持证专业人员全国仅约 1000 人，平均一名教师要服务 2500 个孩子；机构费用高昂，超半数家庭难以承担。</div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;background:rgba(212,117,94,.08);border-color:rgba(212,117,94,.3);padding:16px 28px">
+    <b style="color:var(--rose)">父母、孩子、社会的三元缺失</b> → 干预不及时，星童难以融入社会
+  </div>
+  <div class="src" style="margin-top:auto">数据来源：中国新闻网（2026-04）；北京大学第六医院贾美香主任医师公开访谈；《中国孤独症家长需求调查问卷》</div>
+  <div class="pageno">星童猫咪 · 03</div>
+</section>
+
+<!-- P4 解决方案（软硬一体 · 强化版） -->
+<section class="page">
+  <div class="kicker">解决方案 · SOLUTION</div>
+  <h1 class="title">软硬一体：同一个大脑，<span class="em">两个入口</span></h1>
+  <div class="grid2" style="margin-top:36px">
+    <div class="card" style="border-top:6px solid var(--teal)">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <b class="serif" style="font-size:22px;color:var(--night)">第一步 · 软件</b>
+        <span class="chip chip-teal">已上线 ✓ v1.3</span>
+      </div>
+      <div style="font-size:16px;font-weight:600;margin-top:10px">自闭症儿童视角的家庭干预助手 · 微信小程序</div>
+      <div class="src" style="font-size:13px;margin-top:8px;line-height:1.8">AI 以「孩子」身份与家长演练对话，专家 Agent 逐句点评并生成报告。8 页全功能小程序、多专家矩阵、RAG 循证知识库、积分商业化<b>均已跑通</b>。</div>
+    </div>
+    <div class="card" style="border-top:6px solid var(--star)">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <b class="serif" style="font-size:22px;color:var(--night)">第二步 · 硬件</b>
+        <span class="chip chip-star">链路已打通</span>
+      </div>
+      <div style="font-size:16px;font-weight:600;margin-top:10px">AI 玩具形态的干预伙伴 ·「小星」</div>
+      <div class="src" style="font-size:13px;margin-top:8px;line-height:1.8">把干预能力装进孩子愿意亲近的玩具：玩具端一站式语音 API 已实现，「小星玩伴」Agent 与安全红线已上线，固件基于 xiaozhi-esp32 开源生态（29k★）。</div>
+    </div>
+  </div>
+  <div class="card card-dark" style="margin-top:22px;text-align:center;padding:22px">
+    <span class="serif" style="font-size:19px">软件验证需求与专业壁垒 → 硬件放大场景与商业价值</span>
+    <div style="font-size:13px;opacity:.7;margin-top:8px">同一套专家矩阵与知识库服务两端：边际成本递减，数据双向回流</div>
+  </div>
+  <div class="src" style="margin-top:auto">开源大模型的成熟，让专业级家庭干预第一次具备低成本规模化的可能。</div>
+  <div class="pageno">星童猫咪 · 04</div>
+</section>
+
+<!-- P5 软件产品 -->
+<section class="page">
+  <div class="kicker teal">软件产品 · PRODUCT（已上线）</div>
+  <h1 class="title">自闭症儿童视角下的家庭干预助手</h1>
+  <div class="grid3" style="margin-top:32px">
+    <div class="card"><div class="chip chip-teal">01</div><b style="display:block;font-size:17px;margin-top:10px">孪生场景演练</b><div class="src" style="font-size:13px;margin-top:6px;line-height:1.7">家长描述真实场景，AI 以「孩子」身份回应，针对性解决场景困惑——先懂孩子，再教孩子。</div></div>
+    <div class="card"><div class="chip chip-teal">02</div><b style="display:block;font-size:17px;margin-top:10px">交互式系统学习</b><div class="src" style="font-size:13px;margin-top:6px;line-height:1.7">28 门循证干预课程、42 节互动课，按孩子档案个性化排序，讲师 Agent 对话式授课。</div></div>
+    <div class="card"><div class="chip chip-teal">03</div><b style="display:block;font-size:17px;margin-top:10px">周报总结 · 社区交流</b><div class="src" style="font-size:13px;margin-top:6px;line-height:1.7">每次互动生成结构化报告；家长社区沉淀真实干预案例，同伴支持不再孤军奋战。</div></div>
+  </div>
+  <div class="grid4" style="margin-top:18px">
+    <div class="card" style="padding:16px 18px"><b style="font-size:14px;color:var(--tealdeep)">RAG 知识强化</b><div class="src" style="font-size:12px;margin-top:4px">DSM-5 标准、干预指南与专业语料检索增强</div></div>
+    <div class="card" style="padding:16px 18px"><b style="font-size:14px;color:var(--tealdeep)">孪生星童生成</b><div class="src" style="font-size:12px;margin-top:4px">基于档案生成个性化「数字孪生」交互对象</div></div>
+    <div class="card" style="padding:16px 18px"><b style="font-size:14px;color:var(--tealdeep)">多专家协作</b><div class="src" style="font-size:12px;margin-top:4px">6 位 Agent 专家矩阵协同场景理解与建议</div></div>
+    <div class="card" style="padding:16px 18px"><b style="font-size:14px;color:var(--tealdeep)">隐私保护</b><div class="src" style="font-size:12px;margin-top:4px">特殊群体数据敏感，支持端侧/自部署选项</div></div>
+  </div>
+  <div class="card" style="margin-top:18px;padding:14px 24px;background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.4)">
+    <b style="color:var(--stardeep)">商业化已跑通</b>：注册送 30 积分 · 演练 5 积分/场 · 课程 2 积分/节 · 周报 3 积分/期；微信登录 + 积分中心全部上线
+  </div>
+  <div class="pageno">星童猫咪 · 05</div>
+</section>
+
+<!-- P6 软件实景 -->
+<section class="page">
+  <div class="kicker teal">产品实景 · LIVE DEMO</div>
+  <h1 class="title">小程序已真实跑通全链路</h1>
+  <div class="row" style="gap:24px;margin-top:28px;flex:1">
+    <div style="flex:0 0 340px">
+      <img src="../voice-mode-preview.png" class="img-full img-shadow" style="border-radius:16px" alt="演练页实景">
+      <div class="figure-cap">孪生演练实景：孩子气泡（含动作标注）+ 观察专家逐句点评 + 语音朗读</div>
+    </div>
+    <div style="flex:1;display:grid;gap:14px;align-content:start">
+      <div class="card" style="padding:18px 22px"><b>演练</b><div class="src" style="font-size:12.5px;margin-top:4px">星星档案建档 → 一句话生成孪生场景 → 实时演练 + 专家点评 → 结构化总结报告（评分/亮点/改进/下周练习）</div></div>
+      <div class="card" style="padding:18px 22px"><b>学习</b><div class="src" style="font-size:12.5px;margin-top:4px">28 门循证课程个性化推荐，讲师 Agent 三段式互动授课，学完打卡</div></div>
+      <div class="card" style="padding:18px 22px"><b>社区</b><div class="src" style="font-size:12.5px;margin-top:4px">话题分类 + 专家答疑 + 点赞评论，家长互助氛围</div></div>
+      <div class="card" style="padding:18px 22px"><b>我的</b><div class="src" style="font-size:12.5px;margin-top:4px">孩子档案 · 积分余额 · 周报入口 · 微信/手机号双登录</div></div>
+      <div class="src" style="font-size:12px">开源仓库：github.com/zhangcheng0688/xingtong-cat · 微信开发者工具导入即跑</div>
+    </div>
+  </div>
+  <div class="pageno">星童猫咪 · 06</div>
+</section>
+
+<!-- P7 硬件原型（核心新页） -->
+<section class="page">
+  <div class="kicker">硬件原型 · HARDWARE PROTOTYPE</div>
+  <h1 class="title">「小星」—— 住进孩子世界的<span class="em">干预伙伴</span></h1>
+  <div class="row" style="gap:28px;margin-top:26px;flex:1">
+    <div style="flex:0 0 520px">
+      <img src="assets/toy-hero.png" class="img-full img-shadow" alt="小星硬件原型">
+      <div class="figure-cap">小星 V1 原型渲染（设计演绎自 Hugging Face Reachy Mini 的机器人语言 → 猫形 IP）</div>
+    </div>
+    <div style="flex:1;display:grid;gap:12px;align-content:start">
+      <div class="card" style="padding:14px 20px"><b>🐱 软硅胶猫耳</b><span class="src" style="font-size:12.5px"> 情绪灯效：平静呼吸光 / 开心彩虹光，由「小星玩伴」Agent 的 emotion 字段实时驱动</span></div>
+      <div class="card" style="padding:14px 20px"><b>👀 大圆面屏</b><span class="src" style="font-size:12.5px"> 温暖琥珀色 LED 大眼睛，可预期、不吓到孩子；动效极简，符合 ASD 儿童感觉友好原则</span></div>
+      <div class="card" style="padding:14px 20px"><b>⭐ 胸口星星灯</b><span class="src" style="font-size:12.5px"> 正向强化的视觉锚点：孩子完成一个干预小目标，星星亮一次</span></div>
+      <div class="card" style="padding:14px 20px"><b>🧸 毛绒底座</b><span class="src" style="font-size:12.5px"> 可拥抱的触感，雾青布艺 + 奶油机身，融入卧室与客厅场景</span></div>
+      <div class="card" style="padding:14px 20px;background:#EAF5F6;border-color:rgba(127,190,199,.5)"><b style="color:var(--tealdeep)">硬件底座</b><span class="src" style="font-size:12.5px"> ESP32-S3 + INMP441 麦克风 + MAX98357A 喇叭，BOM ¥60-100；固件基于 xiaozhi-esp32 开源生态（29.4k★）</span></div>
+    </div>
+  </div>
+  <div class="pageno">星童猫咪 · 07</div>
+</section>
+
+<!-- P8 硬件场景 -->
+<section class="page">
+  <div class="kicker">硬件场景 · IN DAILY LIFE</div>
+  <h1 class="title">从客厅到卧室，干预嵌进日常</h1>
+  <div class="row" style="gap:24px;margin-top:24px;flex:1">
+    <div style="flex:1.35">
+      <img src="assets/toy-scene.png" class="img-full img-shadow" alt="小星生活场景">
+      <div class="figure-cap">小星在儿童书桌的场景渲染：与积木、绘本自然共处的家庭成员</div>
+    </div>
+    <div style="flex:1;display:grid;gap:12px;align-content:start">
+      <div class="card" style="padding:14px 20px"><b>情绪安抚与陪伴</b><div class="src" style="font-size:12.5px;margin-top:3px">崩溃时第一时间响应，用熟悉的角色声音安抚与转移注意</div></div>
+      <div class="card" style="padding:14px 20px"><b>日常干预引导</b><div class="src" style="font-size:12.5px;margin-top:3px">把 App 里家长学到的方法，变成玩具在真实生活里的自然引导与正向强化</div></div>
+      <div class="card" style="padding:14px 20px"><b>行为数据记录</b><div class="src" style="font-size:12.5px;margin-top:3px">互动数据回流档案，周报自动生成，干预效果第一次可量化追踪</div></div>
+      <div class="card" style="padding:14px 20px"><b>亲子协同桥梁</b><div class="src" style="font-size:12.5px;margin-top:3px">玩具是孩子与父母之间的「翻译器」</div></div>
+      <div class="card" style="padding:14px 20px;background:rgba(240,180,41,.08)"><b style="color:var(--stardeep)">AI 玩具市场</b><div class="src" style="font-size:12.5px;margin-top:3px">2024 年 246 亿 → 2030E 850 亿元，CAGR 超 20%；2025 年以来赛道融资超 50 起、金额超 200 亿元</div></div>
+    </div>
+  </div>
+  <div class="src" style="margin-top:12px">数据来源：央视财经（2025-11）；中商产业研究院（2025）；新华网（2026-04）；跃然创新（BubblePal）获 2 亿元 A 轮（中金领投）</div>
+  <div class="pageno">星童猫咪 · 08</div>
+</section>
+
+<!-- P9 技术架构（已实现版） -->
+<section class="page">
+  <div class="kicker">技术架构 · TECH（已实现）</div>
+  <h1 class="title">级联架构：语音层让路，<span class="em">专家大脑掌权</span></h1>
+  <div class="flow" style="margin-top:30px">
+    <div class="node"><b>孩子/家长说话</b>玩具麦克风 / 小程序语音</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>语音层</b>ASR 听清 · TTS 说好（云端百炼 / 自部署 FunASR·CosyVoice 双轨）</div>
+    <div class="arrow">→</div>
+    <div class="node node-star"><b>多专家 Agent 矩阵</b>场景理解者 · 心理学检索者 · 儿童模拟者 · 观察专家 · 总结专家 · 小星玩伴</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>RAG 循证知识库</b>DSM-5 · 干预指南 · 专业语料</div>
+  </div>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card" style="padding:18px 22px"><b style="color:var(--tealdeep)">为什么不是端到端黑盒？</b><div class="src" style="font-size:12.5px;margin-top:5px;line-height:1.7">自闭症干预有安全红线：孩子听到的每一句话都必须经过循证专家矩阵，内容可控、可审计、有边界。级联架构让干预专业性成为壁垒，而非交给通用模型自由发挥。</div></div>
+    <div class="card" style="padding:18px 22px"><b style="color:var(--tealdeep)">已验证的安全机制</b><div class="src" style="font-size:12.5px;margin-top:5px;line-height:1.7">「小星玩伴」Agent 内置安全红线：识别自伤/伤害线索 → 温柔安抚 + alert 预警家长。COSTAR Prompt 框架保证输出质量与责任边界。</div></div>
+  </div>
+  <div class="card card-dark" style="margin-top:18px;padding:16px 24px">
+    <span style="font-size:14px">模型底座：开源大模型 + 领域语料微调（FT）+ 检索增强（RAG）· 云端 / 端侧双部署形态 · 玩具端一站式 API <b style="color:var(--star)">POST /api/voice/turn</b> 已上线</span>
+  </div>
+  <div class="pageno">星童猫咪 · 09</div>
+</section>
+
+<!-- P10 数据飞轮 -->
+<section class="page">
+  <div class="kicker">增长引擎 · FLYWHEEL</div>
+  <h1 class="title">数据飞轮：越用越懂每一个星星的孩子</h1>
+  <div class="grid4" style="margin-top:40px">
+    <div class="card" style="text-align:center"><div class="bignum" style="font-size:36px;color:var(--tealdeep)">①</div><b style="display:block;margin-top:8px">家庭使用 · 社区分享</b><div class="src" style="font-size:12.5px;margin-top:6px">App 互动 + AI 玩具日常陪伴</div></div>
+    <div class="card" style="text-align:center"><div class="bignum" style="font-size:36px;color:var(--tealdeep)">②</div><b style="display:block;margin-top:8px">真实场景语料沉淀</b><div class="src" style="font-size:12.5px;margin-top:6px">脱敏后的干预案例与行为数据</div></div>
+    <div class="card" style="text-align:center"><div class="bignum" style="font-size:36px;color:var(--tealdeep)">③</div><b style="display:block;margin-top:8px">专家矩阵与模型迭代</b><div class="src" style="font-size:12.5px;margin-top:6px">语料库扩充 + 持续微调</div></div>
+    <div class="card" style="text-align:center"><div class="bignum" style="font-size:36px;color:var(--tealdeep)">④</div><b style="display:block;margin-top:8px">更准的干预建议</b><div class="src" style="font-size:12.5px;margin-top:6px">口碑传播，更多家庭加入</div></div>
+  </div>
+  <div class="card card-dark" style="margin-top:32px;padding:24px 32px;text-align:center">
+    <span class="serif" style="font-size:20px">硬件端数据是软件时代拿不到的部分</span>
+    <div style="font-size:14px;opacity:.75;margin-top:8px">日常生活场景的真实行为记录，构成长期竞争壁垒</div>
+  </div>
+  <div class="pageno">星童猫咪 · 10</div>
+</section>
+
+<!-- P11 商业模式 -->
+<section class="page">
+  <div class="kicker">商业模式 · BUSINESS MODEL</div>
+  <h1 class="title">三条收入线，从订阅到软硬一体</h1>
+  <div class="grid3" style="margin-top:32px">
+    <div class="card" style="border-top:6px solid var(--teal)"><b class="serif" style="font-size:19px">C 端家庭订阅</b><div class="src" style="font-size:13px;margin-top:8px;line-height:1.75">App 会员制：孪生演练 + 系统课程 + 周报；积分制已上线（演练 5 分/课程 2 分/周报 3 分）。对标机构干预费用的零头。</div></div>
+    <div class="card" style="border-top:6px solid var(--sage)"><b class="serif" style="font-size:19px">B 端机构 SaaS</b><div class="src" style="font-size:13px;margin-top:8px;line-height:1.75">康复机构的「AI 助教」：家庭延伸干预工具与师训支持，缓解 30 万人才缺口；按席位/机构年费授权。</div></div>
+    <div class="card" style="border-top:6px solid var(--star)"><b class="serif" style="font-size:19px">硬件 AI 玩具</b><div class="src" style="font-size:13px;margin-top:8px;line-height:1.75">「硬件 + 订阅制内容」已被跃然创新验证；玩具一次性销售 + ¥19-29/月大脑订阅，软件订阅用户自然转化。</div></div>
+  </div>
+  <div class="card" style="margin-top:24px;background:rgba(127,190,199,.1);border-color:rgba(127,190,199,.4);padding:18px 28px">
+    <b>路径设计</b>：C 端订阅验证付费意愿 → B 端机构建立专业背书与渠道 → 硬件放大客单价与数据壁垒。<b>三条线共用同一套专家矩阵与知识库，边际成本递减。</b>
+  </div>
+  <div class="pageno">星童猫咪 · 11</div>
+</section>
+
+<!-- P12 市场规模 -->
+<section class="page">
+  <div class="kicker">市场规模 · MARKET SIZE</div>
+  <h1 class="title">从千亿家庭支出切入，聚焦可服务市场</h1>
+  <div class="grid3" style="margin-top:36px">
+    <div class="card" style="text-align:center"><div class="chip">TAM</div><div class="bignum" style="margin-top:10px">1000<span class="unit"> 亿元/年</span></div><div class="src" style="margin-top:8px">中国自闭症家庭康复干预总支出</div></div>
+    <div class="card" style="text-align:center"><div class="chip chip-teal">SAM</div><div class="bignum" style="margin-top:10px">300<span class="unit"> 亿元</span></div><div class="src" style="margin-top:8px">家庭端数字化干预 + AI 玩具交集</div></div>
+    <div class="card" style="text-align:center;border-color:rgba(240,180,41,.6)"><div class="chip chip-star">SOM · 5 年目标</div><div class="bignum" style="margin-top:10px;color:var(--stardeep)">3<span class="unit"> 亿元</span></div><div class="src" style="margin-top:8px">10 万付费家庭 × 3000 元/年 ARPU</div></div>
+  </div>
+  <div class="card" style="margin-top:26px;padding:18px 28px">
+    <b>测算口径</b><div class="src" style="font-size:12.5px;margin-top:6px;line-height:1.8">TAM：约 300 万患儿家庭 × 年均干预支出 3 万元（假设值）· SAM：AI 玩具 2025 年 290 亿元 + 数字疗法家庭端渗透 · SOM：10 万付费家庭 × 3000 元/年 ARPU（假设值）。以上为测算假设，可按路演口径调整。</div>
+  </div>
+  <div class="src" style="margin-top:auto">数据来源：中商产业研究院（2025）；智研咨询（2024-12）；TAM/SOM 为本团队基于公开数据的测算假设</div>
+  <div class="pageno">星童猫咪 · 12</div>
+</section>
+
+<!-- P13 竞争格局 -->
+<section class="page">
+  <div class="kicker">竞争格局 · COMPETITION</div>
+  <h1 class="title">错位竞争：专业干预 × AI 个性化的空白带</h1>
+  <div class="card" style="margin-top:28px;padding:8px 20px 16px">
+    <table>
+      <tr><th>玩家</th><th>干预专业性</th><th>家庭场景</th><th>AI 个性化</th><th>硬件形态</th><th>价格门槛</th></tr>
+      <tr><td>大米和小米等机构连锁</td><td class="good">强（线下康复）</td><td class="bad">弱（以机构为主）</td><td class="bad">弱</td><td class="bad">无</td><td class="bad">高</td></tr>
+      <tr><td>恩启 / ALSOLIFE 等线上平台</td><td>中（课程与评估）</td><td>中</td><td class="bad">弱-中</td><td class="bad">无</td><td>中</td></tr>
+      <tr><td>通用 AI 玩具（跃然 BubblePal 等）</td><td class="bad">弱（泛陪伴）</td><td class="good">强</td><td>中</td><td class="good">有</td><td class="good">低</td></tr>
+      <tr class="me"><td>星童猫咪（本项目）</td><td class="good">强（专家矩阵+循证库）</td><td class="good">强（家庭即主场）</td><td class="good">强（档案级个性化）</td><td class="good">原型已就绪</td><td class="good">低</td></tr>
+    </table>
+  </div>
+  <div class="src" style="margin-top:16px;font-size:12.5px">机构连锁专业但贵且不进家庭；线上平台便宜但缺乏个性化与陪伴；通用 AI 玩具有场景但没有干预专业性。<b>星童猫咪卡在三者交集的空白带。</b></div>
+  <div class="pageno">星童猫咪 · 13</div>
+</section>
+
+<!-- P14 路线图 -->
+<section class="page">
+  <div class="kicker">路线图 · ROADMAP</div>
+  <h1 class="title">三步走：软件验证 → 商业闭环 → 硬件放大</h1>
+  <div class="grid3" style="margin-top:32px">
+    <div class="card" style="border-top:6px solid var(--teal)">
+      <div class="chip chip-teal">2026 H2 · 软件公测</div>
+      <div class="src" style="font-size:13px;margin-top:10px;line-height:2">· 小程序 v1.3 已上线（8 页全功能 + 积分商业化）✓<br>· 云端语音接入，演练页语音模式<br>· 专家顾问网络组建<br>· 1000 个种子家庭，打磨干预内容<br>· 自闭症干预语料库 V1</div>
+    </div>
+    <div class="card" style="border-top:6px solid var(--sage)">
+      <div class="chip">2027 · 商业化 + B 端</div>
+      <div class="src" style="font-size:13px;margin-top:10px;line-height:2">· 付费订阅上线，验证单位经济模型<br>· 签约康复机构，SaaS 试点<br>· AI 玩具打样（xiaozhi 生态固件 + ESP32-S3）<br>· 「小星」品牌音色复刻<br>· 3C 认证</div>
+    </div>
+    <div class="card" style="border-top:6px solid var(--star)">
+      <div class="chip chip-star">2027-2028 · 硬件量产</div>
+      <div class="src" style="font-size:13px;margin-top:10px;line-height:2">· AI 玩具量产上市<br>· 全双工语音升级（火山豆包 SC2.0）<br>· 数据飞轮全速运转<br>· 探索海外华语家庭市场</div>
+    </div>
+  </div>
+  <div class="card card-dark" style="margin-top:22px;padding:18px 28px"><b style="color:var(--star)">为什么是现在</b>：开源大模型把专业干预边际成本打到接近零；AI 玩具供应链（广东产业带）与资本热度均已成熟——两端条件第一次同时成立。</div>
+  <div class="pageno">星童猫咪 · 14</div>
+</section>
+
+<!-- P15 团队 -->
+<section class="page">
+  <div class="kicker">团队 · TEAM</div>
+  <h1 class="title">懂技术，更懂这个人群</h1>
+  <div class="row" style="gap:20px;margin-top:32px">
+    <div class="card" style="flex:1.2">
+      <b class="serif" style="font-size:18px">创始团队与股权结构</b>
+      <table style="margin-top:12px">
+        <tr><td><b>张程</b> CEO / CTO</td><td>40%</td><td class="src">哈工大人工智能研究院 · 全栈工程师、连续创业者</td></tr>
+        <tr><td><b>陈婉仪</b> 联合创始人</td><td>20%</td><td class="src">美国印第安纳大学本硕 · 计算机</td></tr>
+        <tr><td><b>高骏杰</b> 联合创始人</td><td>20%</td><td class="src">本科宾夕法尼亚州立大学（PSU）· 硕士哥伦比亚大学</td></tr>
+        <tr><td><b>期权池</b> 未来团队 / 顾问</td><td>20%</td><td class="src">核心技术与商务人才激励</td></tr>
+      </table>
+    </div>
+    <div class="card" style="flex:1">
+      <b class="serif" style="font-size:18px">专家顾问网络</b>
+      <div class="src" style="font-size:13.5px;margin-top:12px;line-height:2.1">· 儿童心理 / 发展行为儿科<br>· 持证康复师（BCBA 等）<br>· 硬件供应链合伙人</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:14px;border-top:1px solid var(--line);padding-top:12px">专业内容均由专家顾问团审校；产品与医学建议之间设有清晰的责任边界。</div>
+    </div>
+  </div>
+  <div class="pageno">星童猫咪 · 15</div>
+</section>
+
+<!-- P16 融资需求 -->
+<section class="page">
+  <div class="kicker">融资需求 · THE ASK</div>
+  <h1 class="title">本轮融资：把 Demo 变成生意</h1>
+  <div class="row" style="gap:24px;margin-top:30px">
+    <div class="card card-dark" style="flex:0 0 340px;text-align:center;padding:36px 24px">
+      <div style="font-size:15px;opacity:.7">本轮融资</div>
+      <div class="serif" style="font-size:72px;color:var(--star);line-height:1.2">300<span style="font-size:28px"> 万元</span></div>
+      <div style="font-size:14px;opacity:.8;margin-top:8px">天使轮 · 出让 10%</div>
+    </div>
+    <div style="flex:1;display:grid;gap:14px">
+      <div class="card" style="padding:16px 22px"><b>18 个月里程碑</b><div class="src" style="font-size:12.5px;margin-top:6px;line-height:1.9">· 小程序正式版上线，付费家庭达 10 万<br>· 签约 100 家康复机构，完成 SaaS 试点<br>· AI 玩具完成打样、3C 认证并开启预售<br>· 干预语料库与专家矩阵迭代至 V2</div></div>
+      <div class="card" style="padding:16px 22px"><b>资金用途</b><div class="src" style="font-size:12.5px;margin-top:6px">产品研发 40% · 硬件供应链 25% · 内容与专家网络 20% · 市场与运营 15%（比例为示意分配，最终以融资协议与预算为准）</div></div>
+    </div>
+  </div>
+  <div class="pageno">星童猫咪 · 16</div>
+</section>
+
+<!-- P17 封底 -->
+<section class="page endpage">
+  <img src="assets/ip-xiaoxing.png" style="width:200px" alt="小星">
+  <h1 style="margin-top:28px">让每一颗星星<br>都被温柔地看见</h1>
+  <div class="en">CARE AUTISM TOGETHER</div>
+  <div style="margin-top:30px;font-size:15px;opacity:.7">星童猫咪团队 · 为 10000 组家庭挽回幸福</div>
+  <div style="margin-top:12px;font-size:13px;opacity:.5">Peter 张程 · +86 13159877586 / +852 44358635</div>
+</section>
+
+</body>
+</html>
