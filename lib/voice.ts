@@ -65,6 +65,41 @@ export async function tts(text: string, voice?: string): Promise<Buffer> {
 // 语音 → 文本（一句话/短音频识别）
 export async function asr(audio: Buffer, filename = "audio.wav"): Promise<string> {
   if (!ASR_KEY) throw new VoiceUnavailable();
+
+  // omni 路线：百炼工作区专属端点等网关不暴露 /audio/transcriptions，
+  // 但 qwen3-omni-flash 可经 chat/completions 接收音频输入完成转写（已实测）
+  if (ASR_MODEL.includes("omni")) {
+    const ext = filename.split(".").pop()?.toLowerCase() ?? "wav";
+    const mime = ext === "mp3" ? "audio/mpeg" : ext === "m4a" ? "audio/mp4" : "audio/wav";
+    const res = await fetch(`${ASR_BASE}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${ASR_KEY}` },
+      body: JSON.stringify({
+        model: ASR_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "input_audio", input_audio: { data: `data:${mime};base64,${audio.toString("base64")}` } },
+              { type: "text", text: "请逐字转写这段中文语音，只输出转写文本本身，不要解释、不要加引号" },
+            ],
+          },
+        ],
+      }),
+    });
+    const data = await res.json().catch(() => ({} as Record<string, never>));
+    if (!res.ok) {
+      const msg = (data as { error?: { message?: string } })?.error?.message ?? "";
+      throw new Error(`ASR 调用失败 ${res.status}: ${msg.slice(0, 200)}（可用 XINGTONG_ASR_MODEL 调整识别模型）`);
+    }
+    const text = String(
+      (data as { choices?: { message?: { content?: string } }[] })?.choices?.[0]?.message?.content ?? ""
+    ).trim();
+    if (!text) throw new Error("没有听清，请再靠近一点说");
+    return text;
+  }
+
+  // 标准 OpenAI 兼容路线：/audio/transcriptions（DashScope 公共端点 sensevoice-v1 / 自部署 FunASR）
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(audio)]), filename);
   form.append("model", ASR_MODEL);
