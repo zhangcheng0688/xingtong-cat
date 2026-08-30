@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星童猫咪 · 设计系统与案例调研</title>
+<style>
+  :root {
+    --paper: #FAF6EE; --cream: #FFFDF7; --ink: #4A4238; --inklight: #7A6F63;
+    --star: #F0B429; --stardeep: #DE911D; --night: #3D362C; --mist: #EDE6D6;
+    --sage: #5E9387; --sagebg: #EDF4F0; --teal: #7FBEC7; --tealbg: #EAF5F6;
+    --rose: #D4755E; --rosebg: #F9ECE7; --apricot: #F2A65A;
+    --shadow-soft: 0 2px 16px rgba(74,66,56,.07);
+    --shadow-lift: 0 8px 32px rgba(74,66,56,.12);
+    --ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: -apple-system, "Yuanti SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: "Songti SC", "STSong", "Noto Serif SC", serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 72px 0 8px; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700;
+    letter-spacing: .18em; color: var(--stardeep); text-transform: uppercase; }
+  .kicker::before { content: "✦"; }
+  h1 { font-size: 44px; line-height: 1.25; }
+  h2 { font-size: 30px; line-height: 1.3; margin: 10px 0 14px; }
+  h3 { font-size: 18px; margin: 28px 0 10px; }
+  p.lead { font-size: 16px; color: var(--inklight); max-width: 640px; }
+  .card { background: var(--cream); border: 1px solid rgba(237,230,214,.9); border-radius: 20px;
+    padding: 24px; box-shadow: var(--shadow-soft); }
+
+  /* 头部 */
+  header.hero { padding: 88px 0 24px; position: relative; overflow: hidden; }
+  header.hero .glow { position: absolute; top: -120px; right: -80px; width: 320px; height: 320px;
+    border-radius: 50%; background: rgba(240,180,41,.16); filter: blur(60px); pointer-events: none; }
+  .hero-cat { display: flex; align-items: flex-end; gap: 20px; margin-top: 34px; }
+  .bubble { position: relative; background: #fff; border-radius: 18px 18px 18px 4px;
+    padding: 14px 18px; font-size: 14px; box-shadow: var(--shadow-soft); max-width: 420px;
+    animation: rise .5s var(--ease) both .15s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* 原则 */
+  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 26px; }
+  .principle { padding: 20px; }
+  .principle b { display: block; font-size: 15px; margin-bottom: 6px; }
+  .principle span { font-size: 13px; color: var(--inklight); }
+  .principle .no { font-family: "Songti SC", serif; font-size: 22px; color: var(--stardeep); opacity: .8; }
+
+  /* 色板 */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 22px; }
+  .swatch { border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-soft); background: #fff; }
+  .swatch .c { height: 74px; }
+  .swatch .t { padding: 10px 12px; font-size: 12px; }
+  .swatch .t b { display: block; font-size: 13px; }
+  .swatch .t code { color: var(--inklight); font-size: 11px; }
+
+  /* 字体样张 */
+  .type-spec { margin-top: 20px; }
+  .type-row { padding: 18px 0; border-bottom: 1px dashed var(--mist); display: flex; align-items: baseline; gap: 18px; }
+  .type-row .meta { flex: 0 0 180px; font-size: 12px; color: var(--inklight); }
+
+  /* 组件 */
+  .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 22px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer;
+    border-radius: 18px; padding: 14px 24px; font-size: 15px; font-weight: 600; font-family: inherit;
+    transition: transform .15s var(--ease); }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--night); color: var(--cream); width: 100%; }
+  .btn-wx { background: #07C160; color: #fff; width: 100%; }
+  .btn-ghost { background: transparent; color: var(--inklight); padding: 8px 16px; font-size: 14px; border-radius: 12px; }
+  .btn-gold { background: rgba(240,180,41,.12); color: var(--stardeep); border: 1px solid rgba(240,180,41,.5);
+    padding: 10px 18px; font-size: 14px; border-radius: 12px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; background: var(--sagebg);
+    color: var(--sage); padding: 4px 12px; font-size: 12px; font-weight: 500; }
+  .chip.teal { background: var(--tealbg); color: #4E8A93; }
+  .chip.rose { background: var(--rosebg); color: var(--rose); }
+  .chip.star { background: rgba(240,180,41,.14); color: var(--stardeep); }
+  .chat-kid { background: #fff; border-radius: 18px 18px 18px 4px; padding: 14px 16px; font-size: 14px;
+    box-shadow: var(--shadow-soft); max-width: 85%; }
+  .chat-parent { background: var(--night); color: var(--cream); border-radius: 18px 18px 4px 18px;
+    padding: 14px 16px; font-size: 14px; max-width: 85%; margin-left: auto; }
+  .coach { border-left: 3px solid var(--teal); background: var(--tealbg); border-radius: 12px;
+    padding: 14px 16px; font-size: 13px; }
+  .coach b { color: #4E8A93; }
+  .ring { width: 96px; height: 96px; border-radius: 50%;
+    background: conic-gradient(var(--star) calc(var(--p) * 1%), var(--mist) 0);
+    display: flex; align-items: center; justify-content: center; }
+  .ring::before { content: ""; position: absolute; width: 72px; height: 72px; border-radius: 50%; background: var(--cream); }
+  .ring b { position: relative; font-family: "Songti SC", serif; font-size: 24px; }
+
+  /* 手机 mock */
+  .phones { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 30px; }
+  .phone { width: 300px; border-radius: 36px; background: var(--cream); border: 1px solid var(--mist);
+    box-shadow: var(--shadow-lift); overflow: hidden; flex: 0 0 auto; }
+  .phone .screen { padding: 18px; min-height: 560px; display: flex; flex-direction: column; }
+  .kid-card { background: var(--night); color: var(--cream); border-radius: 20px; padding: 16px; position: relative; overflow: hidden; }
+  .kid-card .glow { position: absolute; top: -20px; right: -20px; width: 90px; height: 90px; border-radius: 50%;
+    background: rgba(240,180,41,.25); filter: blur(24px); }
+  .scene-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--mist);
+    border-radius: 16px; padding: 12px 14px; margin-top: 10px; font-size: 13px; }
+  .tabbar { margin-top: auto; display: flex; border-top: 1px solid var(--mist); padding-top: 10px; }
+  .tabbar div { flex: 1; text-align: center; font-size: 11px; color: var(--inklight); }
+  .tabbar .on { color: var(--stardeep); font-weight: 700; }
+
+  /* 案例 */
+  .cases { display: grid; gap: 14px; margin-top: 24px; }
+  .case { display: grid; grid-template-columns: 72px 1fr; gap: 18px; align-items: start; }
+  .case .icon { width: 72px; height: 72px; border-radius: 18px; display: flex; align-items: center;
+    justify-content: center; font-size: 26px; font-family: "Songti SC", serif; font-weight: 700; color: #fff; }
+  .case h4 { font-size: 16px; margin-bottom: 4px; }
+  .case p { font-size: 13px; color: var(--inklight); }
+  .case .learn { margin-top: 8px; font-size: 13px; background: var(--sagebg); color: var(--sage);
+    border-radius: 10px; padding: 8px 12px; }
+  .case a { color: var(--stardeep); text-decoration: none; font-size: 12px; }
+  .case a:hover { text-decoration: underline; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--mist); }
+  th { font-size: 12px; color: var(--inklight); font-weight: 600; }
+  footer { padding: 60px 0 80px; color: var(--inklight); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="glow"></div>
+  <div class="wrap">
+    <span class="kicker">DESIGN SYSTEM · 星童猫咪</span>
+    <h1 class="serif">把「温馨」做成系统，<br/>而不是一种感觉。</h1>
+    <p class="lead" style="margin-top:16px">
+      面向自闭症家庭的干预产品，视觉的第一要务不是好看，而是<b>降低焦虑</b>——家长打开它的时刻，往往是崩溃刚刚发生的时刻。
+      本设计系统基于对国内外 ASD 干预产品与学术研究的调研综合而成，每一个颜色、圆角、动效都有出处。
+    </p>
+    <div class="hero-cat">
+      <svg width="110" height="110" viewBox="0 0 120 120" aria-label="吉祥物小星">
+        <path d="M84 78 q18 6 14 22 q-12 -4 -20 -12 z" fill="#7FBEC7"/>
+        <ellipse cx="60" cy="82" rx="34" ry="26" fill="#F6E7CE"/>
+        <path d="M30 40 L24 16 L48 30 z" fill="#F6E7CE"/><path d="M90 40 L96 16 L72 30 z" fill="#F6E7CE"/>
+        <path d="M33 36 L29 22 L44 31 z" fill="#EFB98A"/><path d="M87 36 L91 22 L76 31 z" fill="#EFB98A"/>
+        <circle cx="60" cy="52" r="32" fill="#F6E7CE"/>
+        <path d="M60 12 l3.2 6.8 7.3 .9 -5.4 5 1.4 7.2 -6.5 -3.6 -6.5 3.6 1.4 -7.2 -5.4 -5 7.3 -.9 z" fill="#F0B429"/>
+        <path d="M42 50 q5 -6 10 0" stroke="#4A4238" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M68 50 q5 -6 10 0" stroke="#4A4238" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="38" cy="60" r="5" fill="#F2A9A0" opacity=".65"/><circle cx="82" cy="60" r="5" fill="#F2A9A0" opacity=".65"/>
+        <path d="M57 58 h6 l-3 4 z" fill="#D4755E"/>
+        <path d="M60 62 q-3 5 -8 4 M60 62 q3 5 8 4" stroke="#4A4238" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M24 54 h10 M26 62 l9 -3 M86 54 h10 M85 59 l9 3" stroke="#C9B99C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M30 74 q30 14 60 0 l0 10 q-30 14 -60 0 z" fill="#7FBEC7"/>
+        <path d="M92 92 q20 2 16 -14" stroke="#F6E7CE" stroke-width="10" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="bubble">你好呀，我是<b>小星</b>。<br/>这套设计由我带你看——它要服务的不是一个「用户」，而是一个刚刚经历崩溃现场、需要被接住的家庭。</div>
+    </div>
+  </div>
+</header>
+
+<section><div class="wrap">
+  <span class="kicker">01 · 设计原则</span>
+  <h2 class="serif">四条不可妥协的原则</h2>
+  <div class="principles">
+    <div class="card principle"><div class="no">壹</div><b>先接住情绪，再传递信息</b><span>演练失败不红字报错，用「这句话换种说法会更好」的教练语气。所有反馈先肯定、再建议。</span></div>
+    <div class="card principle"><div class="no">贰</div><b>暖而不闹</b><span>拒绝高饱和渐变与花哨动效。奶油底 + 蜜柑金 + 雾青，全部低饱和；动效只用 0.3s 内的轻浮现。</span></div>
+    <div class="card principle"><div class="no">叁</div><b>大字、大圆角、大间距</b><span>家长可能在抱着孩子的单手状态下操作。正文 15px 起，按钮高 50px+，圆角 16px 起，点击热区充足。</span></div>
+    <div class="card principle"><div class="no">肆</div><b>吉祥物是陪伴者，不是装饰</b><span>小星出现在建档、演练、报告、周报每个关键节点，用气泡说话——让「坚持干预」这件事有一个情感锚点。</span></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="kicker">02 · 色彩体系</span>
+  <h2 class="serif">奶油、蜜柑、雾青、暖炭</h2>
+  <p class="lead">无纯黑、无冷蓝、无荧光色。文字用暖炭而非黑色，避免冷硬感；强调色全部来自「阳光、陶器、湖水」的自然色温。</p>
+  <div class="swatches">
+    <div class="swatch"><div class="c" style="background:#FAF6EE"></div><div class="t"><b>纸纸 Paper</b><code>#FAF6EE · 页面底色</code></div></div>
+    <div class="swatch"><div class="c" style="background:#FFFDF7;border-bottom:1px solid #EDE6D6"></div><div class="t"><b>奶油 Cream</b><code>#FFFDF7 · 卡片/容器</code></div></div>
+    <div class="swatch"><div class="c" style="background:#4A4238"></div><div class="t"><b>暖炭 Ink</b><code>#4A4238 · 正文文字</code></div></div>
+    <div class="swatch"><div class="c" style="background:#7A6F63"></div><div class="t"><b>暖灰 Inklight</b><code>#7A6F63 · 次要文字</code></div></div>
+    <div class="swatch"><div class="c" style="background:#F0B429"></div><div class="t"><b>蜜柑 Star</b><code>#F0B429 · 主强调/评分</code></div></div>
+    <div class="swatch"><div class="c" style="background:#DE911D"></div><div class="t"><b>深蜜柑 Stardeep</b><code>#DE911D · 文字级强调</code></div></div>
+    <div class="swatch"><div class="c" style="background:#3D362C"></div><div class="t"><b>深夜 Night</b><code>#3D362C · 主按钮/档案卡</code></div></div>
+    <div class="swatch"><div class="c" style="background:#7FBEC7"></div><div class="t"><b>雾青 Teal</b><code>#7FBEC7 · 专家点评/围巾</code></div></div>
+    <div class="swatch"><div class="c" style="background:#5E9387"></div><div class="t"><b>鼠尾草 Sage</b><code>#5E9387 · 完成/正向状态</code></div></div>
+    <div class="swatch"><div class="c" style="background:#D4755E"></div><div class="t"><b>暖珊瑚 Rose</b><code>#D4755E · 温和警示/情绪</code></div></div>
+    <div class="swatch"><div class="c" style="background:#F2A65A"></div><div class="t"><b>杏子 Apricot</b><code>#F2A65A · 插画辅助</code></div></div>
+    <div class="swatch"><div class="c" style="background:#EDE6D6"></div><div class="t"><b>薄雾 Mist</b><code>#EDE6D6 · 分隔线/底纹</code></div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="kicker">03 · 字体与排版</span>
+  <h2 class="serif">圆体亲和 + 宋体书卷气</h2>
+  <p class="lead">正文优先使用圆体（Yuanti SC），圆润笔画天然亲和；标题用宋体，给「专业内容」以书卷气和信任感——恰好对应产品的两面：温暖的陪伴 + 循证的专业。</p>
+  <div class="card type-spec">
+    <div class="type-row"><span class="meta">页面标题 / 宋体 30px</span><span class="serif" style="font-size:30px">常见场景，开箱即练</span></div>
+    <div class="type-row"><span class="meta">卡片标题 / 圆体粗 17px</span><b style="font-size:17px">超市购物 · 被拒绝后的哭闹</b></div>
+    <div class="type-row"><span class="meta">正文 / 圆体 15px</span><span style="font-size:15px">蹲下来，平视他的眼睛，先说出他的感受。</span></div>
+    <div class="type-row"><span class="meta">辅助说明 / 圆体 13px 暖灰</span><span style="font-size:13px;color:var(--inklight)">孩子在超市看到玩具非要买，被拒绝后开始哭闹</span></div>
+    <div class="type-row" style="border:none"><span class="meta">标签 / 圆体 12px</span><span><span class="chip">视觉支持</span> <span class="chip teal">专家答疑</span> <span class="chip star">推荐</span></span></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="kicker">04 · 组件语言</span>
+  <h2 class="serif">每个组件都在「说话」</h2>
+  <div class="demo-grid">
+    <div class="card"><h3 style="margin-top:0">按钮族</h3>
+      <button class="btn btn-primary">生成孪生场景，开始演练 ✦</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-wx">微信一键登录</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-gold">获取验证码</button>
+      <button class="btn btn-ghost">先看看</button>
+    </div>
+    <div class="card"><h3 style="margin-top:0">演练对话气泡</h3>
+      <div class="chat-kid">【把积木推开，声音变大】不要！不要收起来！</div>
+      <div style="height:8px"></div>
+      <div class="chat-parent">乐乐，积木倒了你是不是很着急？妈妈看到了。</div>
+      <div style="height:8px"></div>
+      <div class="coach"><b>观察专家</b> · 先命名情绪再给指令，✓ 做得好。可以试试再加一句选择：「要妈妈陪你一起搭，还是你自己来？」</div>
+    </div>
+    <div class="card"><h3 style="margin-top:0">评分环与反馈</h3>
+      <div style="display:flex;gap:20px;align-items:center">
+        <div class="ring" style="--p:74;position:relative"><b>74</b></div>
+        <div style="font-size:13px;color:var(--inklight)">评分环用蜜柑金表达「成长的进度」<br/>而非「对错的审判」——<br/>74 分是「已经有 74% 的应对很棒」。</div>
+      </div>
+    </div>
+    <div class="card"><h3 style="margin-top:0">吉祥物气泡系统</h3>
+      <div style="display:flex;gap:12px;align-items:flex-end">
+        <svg width="52" height="52" viewBox="0 0 120 120"><ellipse cx="60" cy="82" rx="34" ry="26" fill="#F6E7CE"/><path d="M30 40 L24 16 L48 30 z" fill="#F6E7CE"/><path d="M90 40 L96 16 L72 30 z" fill="#F6E7CE"/><circle cx="60" cy="52" r="32" fill="#F6E7CE"/><path d="M60 12 l3.2 6.8 7.3 .9 -5.4 5 1.4 7.2 -6.5 -3.6 -6.5 3.6 1.4 -7.2 -5.4 -5 7.3 -.9 z" fill="#F0B429"/><path d="M42 50 q5 -6 10 0" stroke="#4A4238" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M68 50 q5 -6 10 0" stroke="#4A4238" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="38" cy="60" r="5" fill="#F2A9A0" opacity=".65"/><circle cx="82" cy="60" r="5" fill="#F2A9A0" opacity=".65"/><path d="M57 58 h6 l-3 4 z" fill="#D4755E"/><path d="M60 62 q-3 5 -8 4 M60 62 q3 5 8 4" stroke="#4A4238" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M30 74 q30 14 60 0 l0 10 q-30 14 -60 0 z" fill="#7FBEC7"/></svg>
+        <div class="chat-kid" style="font-size:13px">今天也练了一轮，<br/>你比上周更稳了。</div>
+      </div>
+      <p style="font-size:12px;color:var(--inklight);margin-top:12px">气泡尾巴永远朝向左下角的小星，像它真的在开口。气泡入场带 0.3s 轻浮现 + 微回弹，克制不闹腾。</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="kicker">05 · 关键界面</span>
+  <h2 class="serif">新设计系统下的两个核心屏</h2>
+  <p class="lead">左：演练首页（小星问候 + 档案卡 + 场景即练）。右：演练对话（孩子气泡 / 家长气泡 / 专家点评卡三层信息一目了然）。</p>
+  <div class="phones">
+    <div class="phone"><div class="screen">
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <svg width="44" height="44" viewBox="0 0 120 120"><ellipse cx="60" cy="82" rx="34" ry="26" fill="#F6E7CE"/><path d="M30 40 L24 16 L48 30 z" fill="#F6E7CE"/><path d="M90 40 L96 16 L72 30 z" fill="#F6E7CE"/><circle cx="60" cy="52" r="32" fill="#F6E7CE"/><path d="M60 12 l3.2 6.8 7.3 .9 -5.4 5 1.4 7.2 -6.5 -3.6 -6.5 3.6 1.4 -7.2 -5.4 -5 7.3 -.9 z" fill="#F0B429"/><path d="M42 50 q5 -6 10 0" stroke="#4A4238" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M68 50 q5 -6 10 0" stroke="#4A4238" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M57 58 h6 l-3 4 z" fill="#D4755E"/><path d="M30 74 q30 14 60 0 l0 10 q-30 14 -60 0 z" fill="#7FBEC7"/></svg>
+        <div class="chat-kid" style="font-size:12px;padding:10px 12px">乐乐妈妈，今天也来练一轮吧——在安全的地方，允许试错。</div>
+      </div>
+      <div class="kid-card" style="margin-top:14px">
+        <div class="glow"></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(240,180,41,.25);display:flex;align-items:center;justify-content:center">👦</div>
+          <div><div class="serif" style="font-size:16px">乐乐 <span style="font-size:11px;opacity:.6">· 4 岁</span></div>
+          <div style="font-size:11px;opacity:.7">短语短句 · 喜欢汽车/车轮/灯光</div></div>
+        </div>
+      </div>
+      <div class="serif" style="margin-top:16px;font-size:15px">常见场景，开箱即练</div>
+      <div class="scene-row">🛒 超市购物 <span style="margin-left:auto;color:var(--inklight)">→</span></div>
+      <div class="scene-row">🍚 吃饭哭喊 <span style="margin-left:auto;color:var(--inklight)">→</span></div>
+      <div class="scene-row">🧸 玩具情绪失控 <span style="margin-left:auto;color:var(--inklight)">→</span></div>
+      <div class="scene-row">👟 出门换鞋 <span style="margin-left:auto;color:var(--inklight)">→</span></div>
+      <div class="tabbar"><div class="on">✦<br/>演练</div><div>❋<br/>学习</div><div>◌<br/>社区</div><div>☾<br/>我的</div></div>
+    </div></div>
+    <div class="phone"><div class="screen">
+      <div style="font-size:12px;color:var(--inklight)">‹ 超市购物 · 第 3 轮</div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+        <div class="chat-kid" style="font-size:13px">【抱住货架不肯走，开始尖叫】要！要那个车车！</div>
+        <div class="chat-parent" style="font-size:13px">乐乐很想很想要那个车车，妈妈知道。今天不买，我们回家玩你的车队。</div>
+        <div class="coach"><b>观察专家</b> · 「说出他的愿望 + 坚定规则 + 给替代」，三步完整 ✓ 情绪强度 9 → 6，继续。</div>
+        <div class="chat-kid" style="font-size:13px">【哭声变小，抽泣】……回家，玩车队。</div>
+      </div>
+      <div style="margin-top:auto;background:#fff;border:1px solid var(--mist);border-radius:999px;padding:12px 16px;font-size:13px;color:var(--inklight)">你会怎么回应？</div>
+      <div class="tabbar"><div class="on">✦<br/>演练</div><div>❋<br/>学习</div><div>◌<br/>社区</div><div>☾<br/>我的</div></div>
+    </div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="kicker">06 · 案例调研</span>
+  <h2 class="serif">向最好的产品学习什么</h2>
+  <p class="lead">调研覆盖国内外 ASD 干预产品与学术研究。以下每个案例都附有可查证来源，「学什么」是我们自己的提炼。</p>
+  <div class="cases">
+    <div class="card case">
+      <div class="icon" style="background:#F2A65A">M</div>
+      <div>
+        <h4>MITA（Autism Therapy with MITA）· 美国</h4>
+        <p>首个有临床数据支持的言语干预 App。把课程做成「闯关路线图」，未通过的关卡保持「待点亮」状态，按钮全部使用圆形符号——简单、明确、孩子喜欢。</p>
+        <div class="learn">→ 我们学：课程列表做成「成长路线图」，学完一课点亮一颗星；可点击元素尽量圆形化。</div>
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11894442/" target="_blank" rel="noreferrer">来源：PMC 学术论文（Kano-熵权法 ASD App 界面设计研究，2025-02）↗</a>
+      </div>
+    </div>
+    <div class="card case">
+      <div class="icon" style="background:#7FBEC7">A</div>
+      <div>
+        <h4>Avaz · 国际 AAC 沟通应用</h4>
+        <p>在 20 多个国家上线的增强替代沟通（AAC）应用。界面用「图案 + 文字」组合，以简洁的背景色区分功能分区，指示性强，让 ASD 孩子在使用中感到愉悦。</p>
+        <div class="learn">→ 我们学：信息分区靠「底色」而非「边框线」；图标永远配文字，不单独存在。</div>
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11894442/" target="_blank" rel="noreferrer">来源：PMC 学术论文（同上）↗</a>
+      </div>
+    </div>
+    <div class="card case">
+      <div class="icon" style="background:#5E9387">雨</div>
+      <div>
+        <h4>小雨滴 Little Raindrop · 北京大学团队</h4>
+        <p>国内下载量最高的 ASD 干预 App。宫格式界面直观陈列内容，抽象的<b>手绘风格</b>图形符号生动有趣，贴合儿童认知心理，方便孩子选择与表达。</p>
+        <div class="learn">→ 我们学：吉祥物与插图坚持手绘感、轻微不完美，拒绝精致但冰冷的 3D 渲染风。</div>
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11894442/" target="_blank" rel="noreferrer">来源：PMC 学术论文（同上）↗</a>
+      </div>
+    </div>
+    <div class="card case">
+      <div class="icon" style="background:#DE911D">米</div>
+      <div>
+        <h4>大米和小米 App + AI 督导 · 国内头部</h4>
+        <p>RICE 康复体系的数字化产品，2021 年上线至今已服务超 10 万自闭症家庭；2025 年与腾讯 SSV 联合推出自闭症领域专属 AI 顾问「AI 督导」，公众号 + App 双入口。</p>
+        <div class="learn">→ 我们学：验证了「AI + 居家干预」的需求真实性和付费意愿；我们的差异点是「演练」（AI 扮演孩子）而非「问答」（AI 回答家长）。</div>
+        <a href="http://www.gongyishibao.com/html/gongyizixun/2023/02/23103.html" target="_blank" rel="noreferrer">来源：公益时报（2023-02）↗</a>&nbsp;
+        <a href="https://finance.sina.com.cn/roll/2025-04-02/doc-inertwet9553966.shtml" target="_blank" rel="noreferrer">新浪财经（2025-04）↗</a>
+      </div>
+    </div>
+    <div class="card case">
+      <div class="icon" style="background:#D4755E">研</div>
+      <div>
+        <h4>学术研究结论 · ASD App 界面设计需求权重</h4>
+        <p>基于 Kano-熵权法的实证研究：ASD 干预 App 的需求优先级为<b>内容 &gt; 视觉 &gt; 操作</b>；奖励机制、操作历史记录、语音引导播报是显著提升黏性的设计；导航建议简洁图形符号 + 醒目底色。</p>
+        <div class="learn">→ 我们学：内容投入优先于炫技；每节课配语音讲解（讲师 Agent 的 TTS 化已列入路线）；TabBar 用简洁符号 + 蜜柑金高亮。</div>
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11894442/" target="_blank" rel="noreferrer">来源：PMC 学术论文（2025-02）↗</a>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="kicker">07 · 落地对照</span>
+  <h2 class="serif">设计决策 → 代码实现 对照表</h2>
+  <div class="card" style="padding:8px 24px">
+    <table>
+      <tr><th>设计决策</th><th>在产品中的实现</th></tr>
+      <tr><td>暖炭取代纯黑文字</td><td><code>ink #4A4238</code> 已全局替换原冷色 navy</td></tr>
+      <tr><td>圆体优先字体栈</td><td><code>Yuanti SC → PingFang SC</code> 已写入 Tailwind fontFamily</td></tr>
+      <tr><td>吉祥物气泡开场</td><td>登录页 + 演练首页顶部，小星开口说话</td></tr>
+      <tr><td>点评卡左雾青条</td><td>演练对话中专家点评的视觉锚点</td></tr>
+      <tr><td>评分环用蜜柑金</td><td>报告页 74 分评分环，「进度」而非「审判」</td></tr>
+      <tr><td>微信绿登录按钮</td><td><code>#07C160</code> 官方品牌色，用户零学习成本</td></tr>
+      <tr><td>动效克制 0.3s 内</td><td><code>rise-in</code> 轻浮现 + easeOutCubic 曲线</td></tr>
+    </table>
+  </div>
+  <p class="lead" style="margin-top:18px;font-size:13px">
+    注：本页所有界面 mock 均为真实已上线的产品代码截图风格复刻，与 Web 版产品完全一致；小程序迁移时样式 token 一一对应（px → rpx）。
+  </p>
+</div></section>
+
+<footer>
+  星童猫咪 · 设计系统 V1.0 · 2026-08<br/>
+  案例来源均为公开资料，已逐条附链接；设计系统本身为原创综合。
+</footer>
+
+</body>
+</html>

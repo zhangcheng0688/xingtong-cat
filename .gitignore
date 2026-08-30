@@ -1,0 +1,20 @@
+# 依赖与构建产物
+node_modules/
+.next/
+out/
+
+# 运行时数据（本地 JSON 存储，含演示数据）
+data/store/
+
+# 本地验证截图
+shots/
+
+# 环境与密钥
+.env
+.env.*
+*.local
+
+# 系统文件
+.DS_Store
+*.log
+next-env.d.ts
