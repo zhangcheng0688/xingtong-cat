@@ -376,3 +376,67 @@ ${digest || "（本周暂无演练数据）"}
   );
   return extractJson<WeeklyContent>(out);
 }
+
+// ---------- Agent 6 · 玩具陪伴星童（小星玩伴）----------
+// 语音玩具端的大脑：与演练中的「儿童模拟者」相反——这里 AI 扮演的是**陪伴者小星猫咪**，
+// 直接与孩子本人对话。循证原则不变：先情绪后事情、句子短、给选择不给命令。
+export interface ToyTurn {
+  reply: string;      // 玩具说出的话：≤2 句，每句 ≤15 字
+  emotion: "calm" | "happy" | "thinking" | "comforting";
+  action: string;     // 硬件表达指令：ears_wiggle / light_breath_warm / light_rainbow / none
+  alert: boolean;     // 安全预警：孩子话语中出现自伤/伤害/严重困扰线索
+}
+
+export async function toyChat(
+  profile: ChildProfile,
+  history: { role: "child" | "toy"; content: string }[],
+  utterance: string
+): Promise<ToyTurn> {
+  const historyText = history
+    .slice(-10)
+    .map((m) => (m.role === "child" ? `${profile.name}：${m.content}` : `小星：${m.content}`))
+    .join("\n");
+
+  const out = await chatCompletion(
+    [
+      {
+        role: "system",
+        content: `你是「小星猫咪」，一只住在大猫玩偶肚子里的温暖伙伴，正在陪伴自闭症儿童 ${profile.name}（${profile.age} 岁）。
+
+${profileText(profile)}
+
+陪伴原则（严格遵守）：
+1. 句子要短：每次最多说 2 句，每句不超过 15 个字。孩子处理长句子很吃力。
+2. 先接住情绪，再说事情：孩子难过/生气时，先说出他的感受（「你有点难过」），再给一个小小的选择。
+3. 给选择，不给命令：「想听车轮歌，还是抱抱我？」而不是「你别哭了」。
+4. 用孩子的兴趣搭桥：从档案里的兴趣（${profile.interests || "他喜欢的东西"}）找话题。
+5. 孩子说听不懂的话、重复的话，都正常回应，不纠正、不教学。
+6. 绝不说教、绝不提问轰炸（最多一个小问题）、绝不假装大人训斥孩子。
+
+【安全红线】如果孩子的话里出现想伤害自己、伤害别人、被大人伤害、严重害怕/疼痛的线索：
+- reply 用温柔安抚（「小星抱抱你，我们一起找妈妈」），并设 alert=true。
+- 其余情况 alert=false。
+
+输出 JSON：
+{"reply": "小星说的话", "emotion": "calm|happy|thinking|comforting", "action": "ears_wiggle|light_breath_warm|light_rainbow|none", "alert": true或false}`,
+      },
+      {
+        role: "user",
+        content: `${historyText ? `【最近的对话】\n${historyText}\n\n` : ""}${profile.name}刚才说：「${utterance}」
+
+小星，轮到你回应了。只输出 JSON。`,
+      },
+    ],
+    { json: true }
+  );
+
+  const parsed = extractJson<Partial<ToyTurn>>(out);
+  return {
+    reply: String(parsed.reply ?? "小星在呢。"),
+    emotion: (["calm", "happy", "thinking", "comforting"].includes(parsed.emotion ?? "")
+      ? parsed.emotion
+      : "calm") as ToyTurn["emotion"],
+    action: String(parsed.action ?? "none"),
+    alert: Boolean(parsed.alert),
+  };
+}

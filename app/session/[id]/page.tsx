@@ -4,6 +4,17 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { ChildProfile, Session } from "@/lib/types";
 
+// 浏览器语音识别（Chrome 系）的最小类型
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((e: { results: { [k: number]: { [k: number]: { transcript: string } } } }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+};
+
 function renderChildText(text: string) {
   // 【动作】渲染为灰色斜体感（非 italic，用颜色+字重区分）
   const parts = text.split(/(【[^】]*】)/g);
@@ -28,6 +39,12 @@ export default function SessionPage() {
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState("");
   const [showInfo, setShowInfo] = useState(true);
+  // 语音模式：孩子的话自动朗读；🎙️ 语音输入家长话术
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [listening, setListening] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastSpokenRef = useRef("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +61,77 @@ export default function SessionPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.messages.length, sending]);
+
+  // 语音模式开启时，朗读最新的孩子消息（【动作】标注不读）
+  useEffect(() => {
+    if (!voiceOn || !session) return;
+    const last = session.messages[session.messages.length - 1];
+    if (last?.role === "child") void speak(last.content);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.messages.length, voiceOn]);
+
+  const speak = async (raw: string) => {
+    const text = raw.replace(/【[^】]*】/g, "").trim();
+    if (!text || text === lastSpokenRef.current) return;
+    lastSpokenRef.current = text;
+    setSpeaking(true);
+    try {
+      const res = await fetch("/api/voice/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) throw new Error("cloud tts unavailable");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      audioRef.current?.pause();
+      const a = new Audio(url);
+      audioRef.current = a;
+      a.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); };
+      a.onerror = () => setSpeaking(false);
+      await a.play();
+    } catch {
+      // 云端未配置时降级到浏览器本地语音合成
+      try {
+        const synth = window.speechSynthesis;
+        if (!synth) { setSpeaking(false); return; }
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "zh-CN";
+        u.rate = 0.95;
+        u.onend = () => setSpeaking(false);
+        u.onerror = () => setSpeaking(false);
+        synth.speak(u);
+      } catch {
+        setSpeaking(false);
+      }
+    }
+  };
+
+  const listen = () => {
+    if (listening) return;
+    const w = window as unknown as {
+      SpeechRecognition?: new () => SpeechRecognitionLike;
+      webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+    };
+    const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (!SR) {
+      setError("当前浏览器不支持语音识别（请用 Chrome）；配置 DASHSCOPE_API_KEY 后可走云端识别");
+      return;
+    }
+    const rec = new SR();
+    rec.lang = "zh-CN";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    setListening(true);
+    rec.onresult = (e) => {
+      const text = e.results?.[0]?.[0]?.transcript ?? "";
+      if (text) setInput((v) => (v ? `${v}，${text}` : text));
+    };
+    rec.onend = () => setListening(false);
+    rec.onerror = () => { setListening(false); setError("没有听清，再试一次或直接打字"); };
+    rec.start();
+  };
 
   const send = async () => {
     const text = input.trim();
@@ -122,12 +210,23 @@ export default function SessionPage() {
             <div className="font-serif text-lg text-night">{session.scenario.title}</div>
             <div className="mt-0.5 text-xs text-inklight">目标：{session.scenario.goal}</div>
           </div>
-          <button
-            onClick={() => setShowInfo((v) => !v)}
-            className="text-xs text-inklight underline-offset-2 hover:underline"
-          >
-            {showInfo ? "收起" : "场景详情"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setVoiceOn((v) => !v)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                voiceOn ? "bg-star/20 text-stardeep" : "bg-mist/60 text-inklight"
+              }`}
+              title="开启后，孩子的话会读出来（云端 TTS 优先，浏览器本地合成兜底）"
+            >
+              {speaking ? "🔊 播放中" : voiceOn ? "🔊 语音开" : "🔇 语音关"}
+            </button>
+            <button
+              onClick={() => setShowInfo((v) => !v)}
+              className="text-xs text-inklight underline-offset-2 hover:underline"
+            >
+              {showInfo ? "收起" : "场景详情"}
+            </button>
+          </div>
         </div>
         {showInfo && (
           <div className="msg-in mt-3 rounded-xl bg-mist/50 p-3 text-xs leading-relaxed text-inklight">
@@ -221,6 +320,16 @@ export default function SessionPage() {
                   }
                 }}
               />
+              <button
+                className={`self-end rounded-xl px-4 py-3 text-[15px] transition active:scale-95 ${
+                  listening ? "animate-pulse bg-rose text-white" : "bg-mist/70 text-ink"
+                }`}
+                onClick={listen}
+                disabled={sending}
+                title="语音输入：说一句家长话术"
+              >
+                {listening ? "●" : "🎙️"}
+              </button>
               <button
                 className="self-end rounded-xl bg-night px-5 py-3 text-[15px] font-semibold text-cream transition active:scale-95 disabled:opacity-40"
                 disabled={!input.trim() || sending}

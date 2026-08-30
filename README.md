@@ -10,6 +10,9 @@
 - **登录**：微信一键登录 + 手机号验证码登录（小程序内接 `wx.login` / `getPhoneNumber`，Web 预览为演示通道）
 - **积分**：新用户赠送 30 积分，演练 5 积分/场、课程 2 积分/节、周报 3 积分/期；
   积分中心含充值套餐与明细流水（小程序内接微信支付，iOS 端虚拟支付限制见部署手册）
+- **语音与 AI 玩具**：语音层（ASR/TTS）与干预大脑解耦的级联架构；演练页支持语音朗读与语音输入；
+  玩具端一站式端点 `POST /api/voice/turn`（听→想→说一次完成）+ 第 6 位专家「小星玩伴」Agent；
+  声音模型选型、ESP32 硬件方案与接入协议见 [docs/VOICE_TOY.md](docs/VOICE_TOY.md)
 
 ## 设计系统
 
@@ -33,6 +36,9 @@ npm run dev               # 开发服务器
 | `KIMI_API_KEY` | LLM 网关密钥（必填） | — |
 | `KIMI_BASE_URL` | OpenAI 兼容接口地址 | `https://agent-gw.kimi.com/coding/v1` |
 | `XINGTONG_MODEL` | 使用的模型 | `k3-agent` |
+| `WX_APPID` / `WX_SECRET` | 微信小程序登录（无配置走本地模拟） | — |
+| `DASHSCOPE_API_KEY` | 云端语音（阿里百炼，可选；不配则浏览器本地语音兜底） | — |
+| `XINGTONG_TTS_MODEL` / `XINGTONG_TTS_VOICE` / `XINGTONG_ASR_MODEL` | 语音模型/音色覆盖 | cosyvoice-v1 / longwan / sensevoice-v1 |
 
 ## 架构
 

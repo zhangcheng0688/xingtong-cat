@@ -71,11 +71,19 @@ export interface SmsCode {
   code: string;
   expiresAt: number;     // epoch ms
 }
+export interface ToyMsg {
+  id: string;
+  role: "child" | "toy"; // child=孩子说的话，toy=小星玩具回应
+  content: string;
+  emotion?: string;      // 玩具回应时的情绪标签（供硬件灯光/表情）
+  action?: string;       // 硬件表达指令（耳朵摆动/呼吸灯等）
+  createdAt: string;
+}
 
 function ensureDir() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
-type Kind = "profiles" | "sessions" | "reports" | "posts" | "weekly" | "progress" | "users" | "tokens" | "sms" | "creditTxns";
+type Kind = "profiles" | "sessions" | "reports" | "posts" | "weekly" | "progress" | "users" | "tokens" | "sms" | "creditTxns" | "toy";
 function fileOf(kind: Kind) {
   ensureDir();
   return path.join(DATA_DIR, `${kind}.json`);
@@ -281,5 +289,18 @@ export const store = {
     return Object.values(readAll<CreditTxn>("creditTxns"))
       .filter((t) => t.userId === userId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  },
+
+  // ---- 玩具陪伴会话（语音模式，按孩子档案维度持久化）----
+  getToyHistory(profileId: string): ToyMsg[] {
+    return readAll<{ messages: ToyMsg[] }>("toy")[profileId]?.messages ?? [];
+  },
+  appendToy(profileId: string, msg: Omit<ToyMsg, "id" | "createdAt">) {
+    const all = readAll<{ messages: ToyMsg[] }>("toy");
+    const entry = all[profileId] ?? { messages: [] };
+    entry.messages.push({ ...msg, id: crypto.randomBytes(8).toString("hex"), createdAt: new Date().toISOString() });
+    entry.messages = entry.messages.slice(-40); // 只保留最近 40 条上下文
+    all[profileId] = entry;
+    writeAll("toy", all);
   },
 };
