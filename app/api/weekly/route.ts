@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 import { generateWeekly } from "@/lib/agents";
+import { currentUser, spend, InsufficientCredits, PRICING } from "@/lib/credits";
 
 export async function POST(req: NextRequest) {
   try {
+    const user = currentUser(req);
+    if (!user) {
+      return NextResponse.json({ error: "请先登录", code: "UNAUTHORIZED" }, { status: 401 });
+    }
     const { profileId } = await req.json();
     const profile = store.getProfile(String(profileId ?? ""));
     if (!profile) return NextResponse.json({ error: "请先建立星星档案" }, { status: 404 });
+
+    // 计费：一期 AI 周报 = 3 积分
+    try {
+      spend(user.id, "weekly");
+    } catch (e) {
+      if (e instanceof InsufficientCredits) {
+        return NextResponse.json(
+          { error: `积分不足：生成一期周报需要 ${PRICING.weekly} 积分`, code: "INSUFFICIENT_CREDITS", balance: e.balance, need: e.need },
+          { status: 402 }
+        );
+      }
+      throw e;
+    }
 
     const weekAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const sessions = store
@@ -35,7 +53,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
     store.saveWeekly(weekly);
-    return NextResponse.json({ weekly });
+    return NextResponse.json({ weekly, balance: store.getCredits(user.id) });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

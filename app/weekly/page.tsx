@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavBar from "@/components/NavBar";
+import { authHeaders } from "@/lib/client";
 
 interface Weekly {
   id: string;
@@ -50,11 +51,17 @@ export default function WeeklyPage() {
     try {
       const res = await fetch("/api/weekly", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify({ profileId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "生成失败");
+      if (!res.ok) {
+        if (data.code === "INSUFFICIENT_CREDITS") {
+          setError(`CREDITS:${data.balance}:${data.need}`);
+          return;
+        }
+        throw new Error(data.error || "生成失败");
+      }
       setList((l) => [data.weekly, ...l]);
       setCurrent(data.weekly);
     } catch (e) {
@@ -128,7 +135,19 @@ export default function WeeklyPage() {
           </div>
         )}
 
-        {error && <p className="mt-4 text-sm text-rose">{error}</p>}
+        {error && error.startsWith("CREDITS:") ? (
+          <div className="mt-4 rounded-xl bg-rosebg p-4 text-[13px] leading-relaxed text-rose">
+            积分不足，生成周报需要 3 积分。
+            <button
+              className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-rose px-4 py-2 font-semibold text-white active:scale-[0.98]"
+              onClick={() => router.push("/billing")}
+            >
+              去补充积分 →
+            </button>
+          </div>
+        ) : (
+          error && <p className="mt-4 text-sm text-rose">{error}</p>
+        )}
         <button className="btn-primary mt-6" disabled={generating} onClick={generate}>
           {generating ? "周报主编撰写中…" : current ? "重新生成本周周报" : "生成本周周报 ✦"}
         </button>

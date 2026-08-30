@@ -97,6 +97,17 @@ export default function MePage() {
         {/* 功能入口 */}
         <div className="mt-6 space-y-2.5">
           <button
+            onClick={() => router.push("/billing")}
+            className="card flex w-full items-center gap-3.5 !p-4 text-left transition hover:border-star/60"
+          >
+            <span className="text-xl">✦</span>
+            <div className="flex-1">
+              <div className="text-[15px] font-semibold">积分中心</div>
+              <div className="text-xs text-inklight">余额、充值与积分明细</div>
+            </div>
+            <span className="text-inklight/40">→</span>
+          </button>
+          <button
             onClick={() => router.push("/weekly")}
             className="card flex w-full items-center gap-3.5 !p-4 text-left transition hover:border-star/60"
           >

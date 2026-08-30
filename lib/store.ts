@@ -49,8 +49,17 @@ export interface User {
   wxOpenid?: string;     // 微信登录（小程序 wx.login 换取；Web 预览环境为模拟值）
   nickname: string;
   channel: "phone" | "wechat";
+  credits: number;       // 积分余额
   createdAt: string;
   lastLoginAt: string;
+}
+export interface CreditTxn {
+  id: string;
+  userId: string;
+  delta: number;         // 正=入账（赠送/充值），负=消耗
+  reason: string;        // signup_bonus / purchase / scenario / lesson / weekly / admin
+  refId?: string;        // 关联的 session/lesson 等
+  createdAt: string;
 }
 export interface AuthToken {
   token: string;
@@ -66,7 +75,7 @@ export interface SmsCode {
 function ensureDir() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
-type Kind = "profiles" | "sessions" | "reports" | "posts" | "weekly" | "progress" | "users" | "tokens" | "sms";
+type Kind = "profiles" | "sessions" | "reports" | "posts" | "weekly" | "progress" | "users" | "tokens" | "sms" | "creditTxns";
 function fileOf(kind: Kind) {
   ensureDir();
   return path.join(DATA_DIR, `${kind}.json`);
@@ -243,5 +252,34 @@ export const store = {
     const all = readAll<AuthToken>("tokens");
     delete all[token];
     writeAll("tokens", all);
+  },
+
+  // ---- 积分（Credits）----
+  /** 入账/扣减积分并记流水；余额不足时返回 null，不做任何修改 */
+  addCredits(userId: string, delta: number, reason: string, refId?: string): number | null {
+    const users = readAll<User>("users");
+    const u = users[userId];
+    if (!u) return null;
+    const next = (u.credits ?? 0) + delta;
+    if (next < 0) return null;
+    u.credits = next;
+    users[userId] = u;
+    writeAll("users", users);
+    const txns = readAll<CreditTxn>("creditTxns");
+    const t: CreditTxn = {
+      id: crypto.randomBytes(8).toString("hex"),
+      userId, delta, reason, refId, createdAt: new Date().toISOString(),
+    };
+    txns[t.id] = t;
+    writeAll("creditTxns", txns);
+    return next;
+  },
+  getCredits(userId: string): number {
+    return readAll<User>("users")[userId]?.credits ?? 0;
+  },
+  listCreditTxns(userId: string) {
+    return Object.values(readAll<CreditTxn>("creditTxns"))
+      .filter((t) => t.userId === userId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   },
 };

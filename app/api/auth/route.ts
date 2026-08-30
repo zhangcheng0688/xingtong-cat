@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { store, type User } from "@/lib/store";
+import { SIGNUP_BONUS } from "@/lib/credits";
 
 // 认证 API：小程序与 Web 共用同一套语义。
 // 小程序内：login_wx 的 code 来自 wx.login()，服务端用 AppID+AppSecret 调
@@ -11,7 +12,7 @@ function json(data: unknown, status = 200) {
 }
 
 function publicUser(u: User) {
-  return { id: u.id, nickname: u.nickname, channel: u.channel, phone: u.phone ? u.phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2") : undefined };
+  return { id: u.id, nickname: u.nickname, channel: u.channel, credits: u.credits ?? 0, phone: u.phone ? u.phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2") : undefined };
 }
 
 export async function POST(req: Request) {
@@ -49,12 +50,17 @@ export async function POST(req: Request) {
         phone,
         nickname: `星友${phone.slice(-4)}`,
         channel: "phone",
+        credits: 0,
         createdAt: now,
         lastLoginAt: now,
       };
+      store.saveUser(user);
+      store.addCredits(user.id, SIGNUP_BONUS, "signup_bonus");
+      user = store.getUser(user.id)!; // 重新读取，拿到赠送后的余额
+    } else {
+      user.lastLoginAt = now;
+      store.saveUser(user);
     }
-    user.lastLoginAt = now;
-    store.saveUser(user);
     return json({ ok: true, token: store.issueToken(user.id), user: publicUser(user) });
   }
 
@@ -73,12 +79,17 @@ export async function POST(req: Request) {
         wxOpenid: openid,
         nickname: body.nickname?.trim() || "微信星友",
         channel: "wechat",
+        credits: 0,
         createdAt: now,
         lastLoginAt: now,
       };
+      store.saveUser(user);
+      store.addCredits(user.id, SIGNUP_BONUS, "signup_bonus");
+      user = store.getUser(user.id)!;
+    } else {
+      user.lastLoginAt = now;
+      store.saveUser(user);
     }
-    user.lastLoginAt = now;
-    store.saveUser(user);
     return json({ ok: true, token: store.issueToken(user.id), user: publicUser(user) });
   }
 

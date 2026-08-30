@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 import { tutorChat } from "@/lib/agents";
 import { COURSES } from "@/lib/courses";
+import { currentUser, spend, InsufficientCredits, PRICING } from "@/lib/credits";
 
 // 课程列表（含个性化排序与进度）
 export async function GET(req: NextRequest) {
@@ -50,6 +51,28 @@ export async function POST(req: NextRequest) {
     const lesson = course?.lessons.find((l) => l.id === lessonId);
     if (!course || !lesson) return NextResponse.json({ error: "课程不存在" }, { status: 404 });
 
+    // 计费：一节课首次开课 2 积分；已完成的课复习免费
+    const isFirstOpen = !Array.isArray(history) || history.length === 0;
+    const alreadyDone = store.getProgress(profile.id).completed[course.id]?.includes(lesson.id) ?? false;
+    let balance: number | undefined;
+    if (isFirstOpen && !alreadyDone) {
+      const user = currentUser(req);
+      if (!user) {
+        return NextResponse.json({ error: "请先登录", code: "UNAUTHORIZED" }, { status: 401 });
+      }
+      try {
+        balance = spend(user.id, "lesson", lesson.id);
+      } catch (e) {
+        if (e instanceof InsufficientCredits) {
+          return NextResponse.json(
+            { error: `积分不足：一节互动课需要 ${PRICING.lesson} 积分`, code: "INSUFFICIENT_CREDITS", balance: e.balance, need: e.need },
+            { status: 402 }
+          );
+        }
+        throw e;
+      }
+    }
+
     const reply = await tutorChat(
       profile,
       { name: course.name, brief: course.brief, evidence: course.evidence },
@@ -57,7 +80,7 @@ export async function POST(req: NextRequest) {
       Array.isArray(history) ? history.slice(-10) : [],
       message ? String(message) : undefined
     );
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, balance });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

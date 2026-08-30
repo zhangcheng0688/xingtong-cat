@@ -3,6 +3,7 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import NavBar from "@/components/NavBar";
+import { authHeaders } from "@/lib/client";
 
 interface Msg {
   role: "user" | "assistant";
@@ -35,11 +36,17 @@ function LessonInner() {
       }));
       const res = await fetch("/api/learn", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify({ profileId, courseId, lessonId, history, message }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "讲师开小差了，请重试");
+      if (!res.ok) {
+        if (data.code === "INSUFFICIENT_CREDITS") {
+          setError(`CREDITS:${data.balance}:${data.need}`);
+          return;
+        }
+        throw new Error(data.error || "讲师开小差了，请重试");
+      }
       const r = data.reply;
       setMsgs((m) => [...m, { role: "assistant", content: r.teach, ask: r.ask }]);
       if (r.readyToPractice) setDone(true);
@@ -123,7 +130,16 @@ function LessonInner() {
       </div>
 
       <footer className="border-t border-mist/70 bg-cream px-4 pb-5 pt-3">
-        {error && <p className="mb-2 text-xs text-rose">{error}</p>}
+        {error && error.startsWith("CREDITS:") ? (
+          <div className="mb-2 rounded-xl bg-rosebg p-3 text-xs leading-relaxed text-rose">
+            积分不足，一节课需要 2 积分。
+            <button className="ml-2 font-semibold underline" onClick={() => router.push("/billing")}>
+              去充值 →
+            </button>
+          </div>
+        ) : (
+          error && <p className="mb-2 text-xs text-rose">{error}</p>
+        )}
         {completed ? (
           <div className="rounded-xl bg-sagebg py-3 text-center text-sm font-semibold text-sage">
             ✓ 本节完成，练习已加入你的家庭作业

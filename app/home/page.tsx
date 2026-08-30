@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { PRESET_SCENARIOS, type ChildProfile } from "@/lib/types";
+import { authHeaders, readApiError, isCreditError } from "@/lib/client";
 import TabBar from "@/components/TabBar";
 import Mascot from "@/components/Mascot";
 
@@ -14,6 +15,7 @@ function HomeInner() {
   const [custom, setCustom] = useState("");
   const [creating, setCreating] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (!localStorage.getItem("xt_token")) {
@@ -30,6 +32,10 @@ function HomeInner() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+    fetch("/api/credits", { headers: authHeaders() })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setBalance(d.balance))
+      .catch(() => {});
   }, [searchParams]);
 
   const startScenario = async (desc: string, key: string) => {
@@ -39,11 +45,19 @@ function HomeInner() {
     try {
       const res = await fetch("/api/scenario", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify({ profileId: profile.id, description: desc }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "创建失败");
+      if (!res.ok) {
+        if (data.code === "INSUFFICIENT_CREDITS") {
+          setError(`CREDITS:${data.balance}:${data.need}`);
+        } else {
+          throw new Error(data.error || "创建失败");
+        }
+        setCreating(null);
+        return;
+      }
       router.push(`/session/${data.session.id}`);
     } catch (e) {
       setError((e as Error).message);
@@ -66,12 +80,18 @@ function HomeInner() {
 
   return (
     <main className="app-shell flex flex-col px-6 pb-10 pt-8">
-      {/* 吉祥物问候 */}
+      {/* 吉祥物问候 + 积分入口 */}
       <div className="mb-5 flex items-end gap-3">
         <Mascot size={72} />
         <div className="msg-in relative mb-2 flex-1 rounded-2xl rounded-bl-sm bg-white px-4 py-2.5 text-[13px] leading-relaxed text-ink shadow-soft">
           {profile.name}妈妈/爸爸，今天也来练一轮吧——在安全的地方，允许试错。
         </div>
+        <button
+          onClick={() => router.push("/billing")}
+          className="mb-2 shrink-0 rounded-full border border-star/50 bg-star/10 px-3 py-1.5 text-xs font-semibold text-stardeep active:scale-[0.97]"
+        >
+          ✦ {balance ?? "…"} 积分
+        </button>
       </div>
 
       {/* 孩子卡片 */}
@@ -145,7 +165,19 @@ function HomeInner() {
             场景理解者 → 心理学检索者 → 孪生星童生成中，约需 10-20 秒
           </p>
         )}
-        {error && <p className="mt-3 text-sm text-rose">{error}</p>}
+        {error && error.startsWith("CREDITS:") ? (
+          <div className="mt-3 rounded-xl bg-rosebg p-4 text-[13px] leading-relaxed text-rose">
+            积分用完了——小星还等着陪你练呢。
+            <button
+              className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-rose px-4 py-2 font-semibold text-white active:scale-[0.98]"
+              onClick={() => router.push("/billing")}
+            >
+              去补充积分 →
+            </button>
+          </div>
+        ) : (
+          error && <p className="mt-3 text-sm text-rose">{error}</p>
+        )}
       </div>
       <div className="pb-20" />
       <TabBar />
