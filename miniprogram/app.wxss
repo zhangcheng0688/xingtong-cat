@@ -1,0 +1,84 @@
+/* 星童猫咪 · 小程序设计系统（与 Web 版 token 一致，px → rpx） */
+page {
+  background: #FAF6EE;
+  color: #4A4238;
+  font-family: -apple-system, "Yuanti SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 30rpx;
+  line-height: 1.7;
+}
+.serif { font-family: "Songti SC", "STSong", serif; }
+
+/* 布局 */
+.page { min-height: 100vh; padding: 32rpx 40rpx 160rpx; box-sizing: border-box; }
+.row { display: flex; align-items: center; }
+.between { justify-content: space-between; }
+.flex1 { flex: 1; }
+.center { text-align: center; }
+.mt-s { margin-top: 16rpx; } .mt-m { margin-top: 32rpx; } .mt-l { margin-top: 56rpx; }
+.muted { color: #7A6F63; } .small { font-size: 24rpx; } .tiny { font-size: 20rpx; }
+.title { font-family: "Songti SC", serif; font-size: 36rpx; color: #3D362C; }
+
+/* 卡片 */
+.card {
+  background: #FFFDF7; border: 1rpx solid rgba(237,230,214,.9);
+  border-radius: 32rpx; padding: 32rpx; box-shadow: 0 4rpx 32rpx rgba(74,66,56,.07);
+}
+.card-dark { background: #3D362C; color: #FFFDF7; border: none; position: relative; overflow: hidden; }
+
+/* 按钮 */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 32rpx; padding: 26rpx 0; font-size: 30rpx; font-weight: 600;
+}
+.btn-primary { background: #3D362C; color: #FFFDF7; }
+.btn-wx { background: #07C160; color: #fff; }
+.btn-gold { background: rgba(240,180,41,.12); color: #DE911D; border: 1rpx solid rgba(240,180,41,.5); }
+.btn[disabled] { opacity: .5; }
+.btn::after { border: none; }
+
+/* 输入 */
+.input {
+  width: 100%; box-sizing: border-box; background: rgba(255,255,255,.8);
+  border: 1rpx solid #EDE6D6; border-radius: 24rpx; padding: 22rpx 28rpx; font-size: 30rpx;
+}
+.label { display: block; font-size: 26rpx; font-weight: 600; margin: 24rpx 0 12rpx; }
+
+/* 标签 */
+.chip { display: inline-flex; border-radius: 999rpx; padding: 6rpx 20rpx; font-size: 22rpx; font-weight: 500; background: #EDF4F0; color: #5E9387; }
+.chip-teal { background: #EAF5F6; color: #4E8A93; }
+.chip-rose { background: #F9ECE7; color: #D4755E; }
+.chip-star { background: rgba(240,180,41,.14); color: #DE911D; }
+
+/* 演练对话 */
+.bubble-kid {
+  background: #fff; border-radius: 32rpx 32rpx 32rpx 8rpx; padding: 22rpx 26rpx;
+  font-size: 28rpx; box-shadow: 0 4rpx 24rpx rgba(74,66,56,.07); max-width: 82%; align-self: flex-start;
+}
+.bubble-parent {
+  background: #3D362C; color: #FFFDF7; border-radius: 32rpx 32rpx 8rpx 32rpx;
+  padding: 22rpx 26rpx; font-size: 28rpx; max-width: 82%; align-self: flex-end;
+}
+.coach {
+  border-left: 6rpx solid #7FBEC7; background: #EAF5F6; border-radius: 20rpx;
+  padding: 20rpx 24rpx; font-size: 24rpx; color: #4A4238;
+}
+.coach-name { color: #4E8A93; font-weight: 700; }
+
+/* 吉祥物气泡 */
+.mascot-row { display: flex; align-items: flex-end; gap: 16rpx; margin-bottom: 28rpx; }
+.mascot-img { width: 110rpx; height: 110rpx; flex-shrink: 0; }
+.mascot-bubble {
+  background: #fff; border-radius: 28rpx 28rpx 28rpx 6rpx; padding: 18rpx 24rpx;
+  font-size: 24rpx; box-shadow: 0 4rpx 24rpx rgba(74,66,56,.07);
+}
+
+/* 列表行 */
+.list-row {
+  display: flex; align-items: center; gap: 20rpx; background: #FFFDF7;
+  border: 1rpx solid rgba(237,230,214,.9); border-radius: 28rpx; padding: 24rpx 28rpx; margin-top: 16rpx;
+}
+.list-row .arrow { color: rgba(122,111,99,.4); }
+
+/* 动效：轻浮现 */
+@keyframes riseIn { from { opacity: 0; transform: translateY(12rpx); } to { opacity: 1; transform: none; } }
+.rise { animation: riseIn .35s cubic-bezier(0.215, 0.61, 0.355, 1) both; }

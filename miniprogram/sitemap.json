@@ -1,0 +1,4 @@
+{
+  "desc": "星童猫咪小程序",
+  "rules": [{ "action": "allow", "page": "*" }]
+}

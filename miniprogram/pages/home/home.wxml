@@ -1,0 +1,46 @@
+<view class="page" wx:if="{{profile}}">
+  <!-- 吉祥物问候 + 积分 -->
+  <view class="mascot-row">
+    <image class="mascot-img" src="/assets/mascot.png" mode="aspectFit" />
+    <view class="rise mascot-bubble flex1">{{profile.name}}妈妈/爸爸，今天也来练一轮吧——在安全的地方，允许试错。</view>
+    <view class="chip chip-star" style="flex-shrink:0;font-weight:700" bindtap="goBilling">✦ {{balance === null ? '…' : balance}} 积分</view>
+  </view>
+
+  <!-- 孩子卡片 -->
+  <view class="card card-dark">
+    <view class="row" style="gap:20rpx">
+      <view style="width:88rpx;height:88rpx;border-radius:50%;background:rgba(240,180,41,.25);display:flex;align-items:center;justify-content:center;font-size:44rpx">
+        {{profile.gender === 'boy' ? '👦' : '👧'}}
+      </view>
+      <view>
+        <view class="serif" style="font-size:38rpx">{{profile.name}} <text class="small" style="opacity:.6">· {{profile.age}} 岁</text></view>
+        <view class="tiny" style="opacity:.7">{{profile.languageLevel || '星星档案已建立'}}</view>
+      </view>
+    </view>
+    <view wx:if="{{profile.interests}}" class="tiny mt-s" style="opacity:.6">喜欢：{{profile.interests}}</view>
+  </view>
+
+  <!-- 预置场景 -->
+  <view class="title mt-l">常见场景，开箱即练</view>
+  <view class="list-row" wx:for="{{presets}}" wx:key="key" data-desc="{{item.title}}：{{item.desc}}" data-key="{{item.key}}" bindtap="start">
+    <view style="font-size:40rpx">{{item.icon}}</view>
+    <view class="flex1">
+      <view style="font-size:30rpx;font-weight:600">{{item.title}}</view>
+      <view class="small muted">{{item.desc}}</view>
+    </view>
+    <view class="arrow small" style="color:#DE911D" wx:if="{{creating === item.key}}">构建中…</view>
+    <view class="arrow" wx:else>→</view>
+  </view>
+
+  <!-- 自定义场景 -->
+  <view class="title mt-l">描述你刚刚遇到的场景</view>
+  <view class="small muted mt-s">一句话就行，比如「刚才在商场他非要买玩具，躺地上哭」</view>
+  <textarea class="input mt-s" style="min-height:160rpx" placeholder="发生了什么？" value="{{custom}}" bindinput="onCustom" />
+  <button class="btn btn-primary mt-s" disabled="{{custom.trim().length < 2 || creating !== ''}}" bindtap="startCustom">
+    {{creating === 'custom' ? '多专家协作构建场景中…' : '生成孪生场景，开始演练 ✦'}}
+  </button>
+  <view wx:if="{{creating}}" class="center tiny muted mt-s">场景理解者 → 心理学检索者 → 孪生星童生成中，约需 10-20 秒</view>
+  <view wx:if="{{error}}" class="center small mt-s" style="color:#D4755E">{{error}}</view>
+</view>
+
+<view class="page center muted" wx:else>正在打开星童空间…</view>

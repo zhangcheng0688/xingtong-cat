@@ -1,0 +1,53 @@
+<view class="page" wx:if="{{session}}" style="padding-bottom:200rpx">
+  <!-- 场景头 -->
+  <view class="row between">
+    <view class="flex1">
+      <view class="tiny" style="color:#4E8A93;letter-spacing:4rpx;font-weight:600">ROLEPLAY</view>
+      <view class="serif" style="font-size:36rpx;color:#3D362C">{{session.scenario.title}}</view>
+    </view>
+    <view class="chip {{session.status === 'active' ? 'chip-teal' : ''}}">{{session.status === 'active' ? '进行中' : '已结束'}}</view>
+  </view>
+  <view class="small muted mt-s">你扮演家长，小星扮演孩子。像在家一样说话就好——允许试错。</view>
+
+  <!-- 消息流 -->
+  <view wx:for="{{messages}}" wx:key="id" class="rise" style="display:flex;flex-direction:column;margin-top:24rpx">
+    <!-- 家长（右） -->
+    <view wx:if="{{item.role === 'parent'}}" class="bubble-parent">{{item.content}}</view>
+    <!-- 孩子（左，带头像） -->
+    <view wx:elif="{{item.role === 'child'}}" class="row" style="align-items:flex-end;gap:14rpx">
+      <image class="mascot-img" style="width:64rpx;height:64rpx" src="/assets/mascot.png" mode="aspectFit" />
+      <view class="bubble-kid">{{item.content}}</view>
+    </view>
+    <!-- 教练点评 -->
+    <view wx:elif="{{item.role === 'expert'}}" class="coach">
+      <view class="coach-name tiny">✦ 小星教练{{item.expertNote.method ? ' · ' + item.expertNote.method : ''}}</view>
+      <view style="margin-top:8rpx">{{item.content}}</view>
+      <view wx:if="{{item.expertNote.suggestion}}" class="muted" style="margin-top:10rpx">试试：{{item.expertNote.suggestion}}</view>
+    </view>
+    <!-- 孩子回应中 -->
+    <view wx:elif="{{item.role === 'typing'}}" class="tiny muted">孩子正在回应…</view>
+  </view>
+
+  <view wx:if="{{error}}" class="center small mt-m" style="color:#D4755E">{{error}}</view>
+
+  <!-- 结束演练 -->
+  <button wx:if="{{session.status === 'active'}}" class="btn btn-gold mt-l" bindtap="end" disabled="{{ending}}">
+    {{ending ? '教练复盘中…' : '结束演练，生成总结报告 ✦'}}
+  </button>
+  <button wx:else class="btn btn-primary mt-l" bindtap="end" disabled="{{ending}}">
+    {{ending ? '教练复盘中…' : '查看总结报告 ✦'}}
+  </button>
+</view>
+
+<view class="page center muted" wx:elif="{{error}}">
+  <view>{{error}}</view>
+</view>
+<view class="page center muted" wx:else>正在进入演练现场…</view>
+
+<!-- 输入区 -->
+<view wx:if="{{session && session.status === 'active'}}" style="position:fixed;left:0;right:0;bottom:0;background:#FAF6EE;padding:20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));border-top:1rpx solid #EDE6D6;z-index:10">
+  <view class="row" style="gap:16rpx">
+    <input class="input flex1" placeholder="说一句你会说的话…" value="{{input}}" bindinput="onInput" confirm-type="send" bindconfirm="send" />
+    <button class="btn btn-primary" style="padding:0 40rpx;height:88rpx;font-size:28rpx;border-radius:24rpx" bindtap="send" disabled="{{!input.trim() || sending}}">发送</button>
+  </view>
+</view>

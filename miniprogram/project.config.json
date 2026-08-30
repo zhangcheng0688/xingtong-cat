@@ -1,0 +1,16 @@
+{
+  "description": "星童猫咪 · AI 驱动的自闭症家庭干预伙伴（小程序端）",
+  "appid": "wx148d2368a5a56dd6",
+  "compileType": "miniprogram",
+  "libVersion": "3.8.12",
+  "projectname": "xingtong-cat",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "ignoreUploadUnusedFiles": true
+  },
+  "condition": {}
+}

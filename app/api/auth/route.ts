@@ -66,11 +66,23 @@ export async function POST(req: Request) {
 
   // —— ③ 微信一键登录 ——
   if (body.action === "login_wx") {
-    // 小程序正式环境：const { code } = body;
-    //   GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=code&grant_type=authorization_code
-    //   → openid，用它做 findUserByWx。
-    // Web 预览环境没有微信容器：用模拟 openid 演示完整链路。
-    const openid = DEV ? "dev_wechat_user" : (body.code ?? "");
+    // 小程序：wx.login() 拿 code → 服务端 code2Session 换 openid（真实链路）
+    // Web 预览：无微信容器，走 dev 模拟通道
+    let openid = "";
+    const appid = process.env.WX_APPID;
+    const secret = process.env.WX_SECRET;
+    if (body.code && appid && secret) {
+      const r = await fetch(
+        `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${encodeURIComponent(body.code)}&grant_type=authorization_code`
+      );
+      const d = (await r.json()) as { openid?: string; errcode?: number; errmsg?: string };
+      if (!d.openid) {
+        return json({ error: `微信登录失败（${d.errcode}: ${d.errmsg ?? "code 无效"}）` }, 401);
+      }
+      openid = d.openid;
+    } else if (DEV) {
+      openid = "dev_wechat_user";
+    }
     if (!openid) return json({ error: "缺少微信登录凭证" }, 400);
     let user = store.findUserByWx(openid);
     if (!user) {

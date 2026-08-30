@@ -1,0 +1,34 @@
+<view class="page" style="padding-top:120rpx">
+  <view style="display:flex;flex-direction:column;align-items:center;text-align:center">
+    <view class="rise mascot-bubble" style="max-width:440rpx">你好呀，我是小星。以后陪你一起，慢慢懂孩子 ✦</view>
+    <image class="mascot-img" style="width:200rpx;height:200rpx;margin-top:12rpx" src="/assets/mascot.png" mode="aspectFit" />
+    <view class="serif" style="font-size:52rpx;margin-top:24rpx">星童猫咪</view>
+    <view class="muted small" style="margin-top:12rpx">AI 驱动的自闭症家庭干预伙伴\n登录后，孩子的档案与成长记录只属于你</view>
+  </view>
+
+  <view class="mt-l">
+    <button class="btn btn-wx" disabled="{{busy}}" bindtap="wxLogin">微信一键登录</button>
+
+    <view class="row" style="margin:40rpx 0;gap:20rpx">
+      <view style="flex:1;height:1rpx;background:#EDE6D6"></view>
+      <view class="tiny muted">或使用手机号</view>
+      <view style="flex:1;height:1rpx;background:#EDE6D6"></view>
+    </view>
+
+    <view class="label">手机号</view>
+    <input class="input" type="number" maxlength="11" placeholder="输入常用手机号" value="{{phone}}" bindinput="onPhone" />
+    <view class="row mt-s" style="gap:16rpx">
+      <input class="input flex1" type="number" maxlength="6" placeholder="6 位验证码" value="{{code}}" bindinput="onCode" />
+      <button class="btn btn-gold" style="padding:20rpx 28rpx;font-size:26rpx" disabled="{{countdown>0}}" bindtap="sendCode">
+        {{countdown > 0 ? countdown + 's' : '获取验证码'}}
+      </button>
+    </view>
+    <view wx:if="{{devCode}}" class="tiny mt-s" style="color:#5E9387">开发演示：验证码 {{devCode}}</view>
+    <button class="btn btn-primary mt-m" disabled="{{busy}}" bindtap="phoneLogin">登录</button>
+    <view wx:if="{{error}}" class="center small" style="color:#D4755E;margin-top:20rpx">{{error}}</view>
+  </view>
+
+  <view class="center tiny muted" style="margin-top:120rpx">
+    登录即代表同意《用户协议》与《隐私政策》\n孩子的所有数据仅用于为你提供干预支持，绝不外传
+  </view>
+</view>

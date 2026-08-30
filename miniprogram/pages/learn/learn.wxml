@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="tiny" style="color:#4E8A93;letter-spacing:4rpx;font-weight:600">PARENT ACADEMY</view>
+  <view class="title mt-s">家长学院</view>
+  <view class="small muted mt-s">基于循证方法的互动式课程：对话中学、学完就练。首次开课 2 积分，复习免费。</view>
+
+  <view wx:for="{{courses}}" wx:key="id" class="card mt-m rise" data-id="{{item.id}}" bindtap="open">
+    <view class="row between">
+      <view class="chip">{{item.category}}</view>
+      <view wx:if="{{index === 0}}" class="chip chip-star">为你推荐</view>
+    </view>
+    <view class="serif mt-s" style="font-size:34rpx;color:#3D362C">{{item.name}}</view>
+    <view class="tiny muted">{{item.enName}}</view>
+    <view class="small muted mt-s">{{item.brief}}</view>
+    <view class="row between mt-s">
+      <view class="tiny muted">{{item.doneCount}}/{{item.lessonCount}} 节</view>
+      <view style="color:#DE911D">{{item.doneCount >= item.lessonCount ? '已学完 ✓' : '继续 →'}}</view>
+    </view>
+    <view style="height:10rpx;border-radius:99rpx;background:#EDE6D6;margin-top:14rpx;overflow:hidden">
+      <view style="width:{{item.lessonCount ? item.doneCount / item.lessonCount * 100 : 0}}%;height:100%;background:#7FBEC7;border-radius:99rpx"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{error}}" class="center muted mt-l">{{error}}</view>
+  <view wx:if="{{!courses.length && !error}}" class="center muted mt-l">课程加载中…</view>
+</view>

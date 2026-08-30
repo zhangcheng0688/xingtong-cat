@@ -1,0 +1,39 @@
+<view class="page">
+  <view class="tiny" style="color:#D4755E;letter-spacing:4rpx;font-weight:600">COMMUNITY</view>
+  <view class="title mt-s">星友社区</view>
+  <view class="small muted mt-s">同路人的经验与取暖，专家定期答疑。</view>
+
+  <!-- 话题筛选 -->
+  <scroll-view scroll-x class="mt-m" style="white-space:nowrap" enhanced show-scrollbar="{{false}}">
+    <view
+      wx:for="{{topics}}"
+      wx:key="*this"
+      data-topic="{{item}}"
+      bindtap="pick"
+      class="chip {{active === item ? 'chip-star' : ''}}"
+      style="display:inline-flex;margin-right:16rpx;padding:10rpx 28rpx"
+    >{{item}}</view>
+  </scroll-view>
+
+  <!-- 帖子流 -->
+  <view wx:for="{{posts}}" wx:key="id" class="card mt-m rise" data-id="{{item.id}}" bindtap="open">
+    <view class="row" style="gap:12rpx">
+      <view class="chip chip-teal">{{item.topic}}</view>
+      <view wx:if="{{item.isExpert}}" class="chip chip-star">专家</view>
+    </view>
+    <view class="serif mt-s" style="font-size:32rpx;color:#3D362C">{{item.title}}</view>
+    <view class="small muted mt-s" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{{item.content}}</view>
+    <view class="row between mt-s">
+      <view class="tiny muted">{{item.author}} · {{item.timeAgo}}</view>
+      <view class="row tiny" style="gap:28rpx">
+        <view catchtap="like" data-id="{{item.id}}" style="color:{{liked[item.id] ? '#D4755E' : '#7A6F63'}};padding:8rpx">
+          {{liked[item.id] ? '♥' : '♡'}} {{item.likes}}
+        </view>
+        <view class="muted" style="padding:8rpx">💬 {{item.comments.length}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{error}}" class="center muted mt-l">{{error}}</view>
+  <view wx:if="{{!posts.length && !error}}" class="center muted mt-l">这个话题下还没有帖子</view>
+</view>

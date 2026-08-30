@@ -1,0 +1,36 @@
+<view class="page" style="padding-bottom:200rpx">
+  <view class="tiny" style="color:#4E8A93;letter-spacing:4rpx;font-weight:600">LESSON</view>
+  <view class="title mt-s">{{title}}</view>
+  <view class="small muted mt-s">和小星老师对话学习，聊透每个要点后就能打卡。</view>
+
+  <view wx:for="{{messages}}" wx:key="id" class="rise" style="display:flex;flex-direction:column;margin-top:24rpx">
+    <view wx:if="{{item.role === 'user'}}" class="bubble-parent">{{item.content}}</view>
+    <view wx:elif="{{item.role === 'tutor'}}" class="row" style="align-items:flex-end;gap:14rpx">
+      <image class="mascot-img" style="width:64rpx;height:64rpx" src="/assets/mascot.png" mode="aspectFit" />
+      <view class="bubble-kid">
+        <view wx:if="{{item.isAsk}}" class="tiny" style="color:#4E8A93;font-weight:700;margin-bottom:6rpx">✦ 想一想</view>
+        {{item.content}}
+      </view>
+    </view>
+    <view wx:elif="{{item.role === 'typing'}}" class="tiny muted">小星老师正在输入…</view>
+  </view>
+
+  <view wx:if="{{!messages.length && busy}}" class="center muted mt-l">小星老师备课中，约需几秒…</view>
+  <view wx:if="{{error}}" class="center small mt-m" style="color:#D4755E">{{error}}</view>
+
+  <!-- 打卡 -->
+  <view wx:if="{{ready && !done}}" class="card mt-l center rise" style="background:rgba(240,180,41,.1)">
+    <view class="serif" style="font-size:32rpx;color:#3D362C">本节要点都聊透啦</view>
+    <view class="small muted mt-s">把练习带回家，做完记得回来打卡</view>
+    <button class="btn btn-primary mt-m" bindtap="complete">完成打卡 ✦</button>
+  </view>
+  <view wx:if="{{done}}" class="center mt-l" style="color:#5E9387;font-weight:600">已打卡 ✓ 正在返回课程…</view>
+</view>
+
+<!-- 输入区 -->
+<view style="position:fixed;left:0;right:0;bottom:0;background:#FAF6EE;padding:20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));border-top:1rpx solid #EDE6D6;z-index:10">
+  <view class="row" style="gap:16rpx">
+    <input class="input flex1" placeholder="说说你的理解或疑问…" value="{{input}}" bindinput="onInput" confirm-type="send" bindconfirm="send" />
+    <button class="btn btn-primary" style="padding:0 40rpx;height:88rpx;font-size:28rpx;border-radius:24rpx" bindtap="send" disabled="{{!input.trim() || busy}}">发送</button>
+  </view>
+</view>

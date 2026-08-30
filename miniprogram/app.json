@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/learn/learn",
+    "pages/community/community",
+    "pages/me/me",
+    "pages/login/login",
+    "pages/session/session",
+    "pages/report/report",
+    "pages/lesson/lesson"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#FAF6EE",
+    "navigationBarTitleText": "星童猫咪",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FAF6EE"
+  },
+  "tabBar": {
+    "color": "#7A6F63",
+    "selectedColor": "#DE911D",
+    "backgroundColor": "#FFFDF7",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "演练" },
+      { "pagePath": "pages/learn/learn", "text": "学习" },
+      { "pagePath": "pages/community/community", "text": "社区" },
+      { "pagePath": "pages/me/me", "text": "我的" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,66 @@
+<view class="page" wx:if="{{report}}">
+  <view class="tiny" style="color:#DE911D;letter-spacing:4rpx;font-weight:600">SESSION REPORT</view>
+  <view class="title mt-s">演练总结报告</view>
+  <view class="small muted" wx:if="{{session}}">{{session.scenario.title}}</view>
+
+  <!-- 总分 -->
+  <view class="card mt-m row" style="gap:32rpx">
+    <view class="center" style="flex-shrink:0;width:190rpx">
+      <view class="serif" style="font-size:80rpx;color:#3D362C;line-height:1.1">{{report.overallScore}}</view>
+      <view class="tiny muted">综合表现</view>
+      <view style="height:12rpx;border-radius:99rpx;background:#EDE6D6;margin-top:16rpx;overflow:hidden">
+        <view style="width:{{report.overallScore}}%;height:100%;background:#F0B429;border-radius:99rpx"></view>
+      </view>
+    </view>
+    <view class="flex1 small" style="line-height:1.8">{{report.summary}}</view>
+  </view>
+
+  <!-- 亮点 -->
+  <block wx:if="{{report.highlights && report.highlights.length}}">
+    <view class="title mt-l" style="font-size:32rpx">✦ 做得好的地方</view>
+    <view wx:for="{{report.highlights}}" wx:key="index" style="background:#EDF4F0;border-radius:24rpx;padding:28rpx;margin-top:16rpx">
+      <view style="font-weight:600">{{item.point}}</view>
+      <view class="small muted mt-s">你说的：「{{item.quote}}」</view>
+    </view>
+  </block>
+
+  <!-- 改进 -->
+  <block wx:if="{{report.improvements && report.improvements.length}}">
+    <view class="title mt-l" style="font-size:32rpx">✦ 下次可以这样试</view>
+    <view wx:for="{{report.improvements}}" wx:key="index" style="background:#F9ECE7;border-radius:24rpx;padding:28rpx;margin-top:16rpx">
+      <view style="font-weight:600">{{item.point}}</view>
+      <view class="small muted mt-s">你说的：「{{item.quote}}」</view>
+      <view class="small mt-s" style="color:#D4755E;font-weight:600">试试说：「{{item.better}}」</view>
+    </view>
+  </block>
+
+  <!-- 孩子解读 -->
+  <view class="title mt-l" style="font-size:32rpx">✦ 读懂孩子</view>
+  <view class="card mt-s small" style="line-height:1.9">{{report.childReading}}</view>
+
+  <!-- 方法标签 -->
+  <view class="row mt-m" style="flex-wrap:wrap;gap:12rpx" wx:if="{{report.methodTags && report.methodTags.length}}">
+    <view class="chip" wx:for="{{report.methodTags}}" wx:key="*this">{{item}}</view>
+  </view>
+
+  <!-- 下周练习 -->
+  <block wx:if="{{report.nextSteps && report.nextSteps.length}}">
+    <view class="title mt-l" style="font-size:32rpx">✦ 未来一周的家庭练习</view>
+    <view class="card row" wx:for="{{report.nextSteps}}" wx:key="index" style="padding:24rpx 28rpx;gap:16rpx;margin-top:16rpx">
+      <view class="serif" style="color:#DE911D;flex-shrink:0">{{index + 1}}.</view>
+      <view class="flex1 small">{{item}}</view>
+    </view>
+  </block>
+
+  <view class="tiny muted mt-l" style="background:rgba(127,190,199,.12);border-radius:20rpx;padding:24rpx;line-height:1.8">
+    本报告基于 AI 模拟演练生成，供家庭教育参考。若孩子出现自伤、攻击升级或严重睡眠/进食紊乱，请及时就诊儿童精神科或发育行为儿科。
+  </view>
+
+  <button class="btn btn-primary mt-m" bindtap="goHome">回到星童空间，再练一场 ✦</button>
+</view>
+
+<view class="page center muted" wx:elif="{{error}}">
+  <view>{{error}}</view>
+  <button class="btn btn-primary mt-m" style="padding:0 60rpx;width:auto;display:inline-flex" bindtap="goHome">返回首页</button>
+</view>
+<view class="page center muted" wx:else>教练正在写报告…</view>
