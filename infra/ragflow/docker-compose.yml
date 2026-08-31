@@ -51,9 +51,11 @@ services:
       - redisdata:/data
 
   ragflow:
-    image: infiniflow/ragflow:v0.24.0-slim
+    image: infiniflow/ragflow:v0.21.1-slim
+    platform: linux/amd64 # 官方镜像仅 amd64，Apple Silicon 经 Rosetta 运行（colima 需 --vz-rosetta）
     container_name: ragflow-server
     # slim 版不含内置嵌入模型——我们外接阿里百炼 qwen3.7-text-embedding，正合适
+    # 注意：v0.22 起官方不再发布 slim 标签；最新版镜像 3.3GB+ 且仅 amd64
     ports:
       - "9380:9380"
     environment:
