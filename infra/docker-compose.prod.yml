@@ -1,0 +1,132 @@
+# 星童猫咪 · 云上生产编排（任意云通用：阿里云/腾讯云/AWS 中国）
+# 一台 4C8G 云主机跑全部：Next.js 应用 + RAGFlow 检索引擎 + Caddy 自动 HTTPS
+# 用法见 docs/云上部署.md；启动：docker compose -f infra/docker-compose.prod.yml up -d --build
+
+services:
+  # ---- 应用：Next.js 全栈（多专家 Agent + 语音 + 积分 + 知识检索）----
+  app:
+    build: ..
+    container_name: xingtong-app
+    restart: unless-stopped
+    env_file:
+      - path: ../.env.production # 从 .env.example 复制填写，密钥不入库
+        required: false
+    volumes:
+      - appstore:/app/data/store # 用户/会话/积分数据持久化（M2 再迁 Postgres）
+    networks: [internal]
+
+  # ---- 网关：Caddy 自动签发 HTTPS 证书 ----
+  caddy:
+    image: caddy:2
+    container_name: xingtong-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-api.example.com} # 换成你已备案的域名
+    volumes:
+      - ./cloud/Caddyfile:/etc/caddy/Caddyfile
+      - caddydata:/data
+    depends_on: [app]
+    networks: [internal]
+
+  # ---- RAGFlow 检索引擎（slim，外接百炼 embedding）----
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: ragflow-es01
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      retries: 30
+    networks: [internal]
+
+  mysql:
+    image: mysql:8.0.39
+    container_name: ragflow-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${RAGFLOW_MYSQL_PASSWORD:-ragflow}
+      - MYSQL_DATABASE=rag_flow
+      - TZ=Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      retries: 30
+    networks: [internal]
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: ragflow-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${RAGFLOW_MINIO_USER:-ragflow}
+      - MINIO_ROOT_PASSWORD=${RAGFLOW_MINIO_PASSWORD:-infini_rag_flow}
+    volumes:
+      - miniodata:/data
+    networks: [internal]
+
+  redis:
+    image: redis:7
+    container_name: ragflow-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${RAGFLOW_REDIS_PASSWORD:-infini_rag_flow}
+    volumes:
+      - redisdata:/data
+    networks: [internal]
+
+  ragflow:
+    image: infiniflow/ragflow:v0.21.1-slim
+    platform: linux/amd64 # 官方仅 amd64；云服务器多为 x86，原生可跑
+    container_name: ragflow-server
+    restart: unless-stopped
+    # 不对外暴露端口；管理后台经 SSH 隧道访问：ssh -L 9380:localhost:9380 user@服务器
+    expose:
+      - "9380"
+    environment:
+      - DOC_ENGINE=elasticsearch
+      - ES_HOST=es01
+      - ES_PORT=9200
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${RAGFLOW_MYSQL_PASSWORD:-ragflow}
+      - MYSQL_DATABASE=rag_flow
+      - MINIO_HOST=minio:9000
+      - MINIO_USER=${RAGFLOW_MINIO_USER:-ragflow}
+      - MINIO_PASSWORD=${RAGFLOW_MINIO_PASSWORD:-infini_rag_flow}
+      - REDIS_HOST=redis:6379
+      - REDIS_PASSWORD=${RAGFLOW_REDIS_PASSWORD:-infini_rag_flow}
+      - SVR_HTTP_PORT=9380
+      - TZ=Asia/Shanghai
+    depends_on:
+      es01: { condition: service_healthy }
+      mysql: { condition: service_healthy }
+      minio: { condition: service_started }
+      redis: { condition: service_started }
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  appstore:
+  caddydata:
+  esdata:
+  mysqldata:
+  miniodata:
+  redisdata:

@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+miniprogram
+docs
+infra
+scripts
+*.log
+.env.local
+Dockerfile
+.dockerignore

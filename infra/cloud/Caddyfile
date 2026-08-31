@@ -1,0 +1,5 @@
+# 星童猫咪 API 网关：自动申请并续期 HTTPS 证书（要求 DOMAIN 已解析到本机）
+{$DOMAIN} {
+	reverse_proxy app:3000
+	encode zstd gzip
+}

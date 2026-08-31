@@ -1,0 +1,28 @@
+# 推送 main 即自动部署到云服务器
+# 需在 GitHub 仓库 Settings → Secrets and variables → Actions 配置三个密钥：
+#   SERVER_HOST       服务器公网 IP
+#   SERVER_USER       登录用户（如 root / ubuntu）
+#   SERVER_SSH_KEY    对应的 SSH 私钥（建议专门为部署生成一对：ssh-keygen -f deploy_key）
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # 也支持手动点按钮触发
+
+jobs:
+  ship:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 部署到云服务器
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/xingtong-cat
+            git pull --ff-only
+            docker compose -f infra/docker-compose.prod.yml --env-file .env.production up -d --build
+            docker image prune -f
