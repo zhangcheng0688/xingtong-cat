@@ -57,10 +57,10 @@ ${description}
 }
 
 // ---------- Agent 2 · 心理学检索者 ----------
-export function retrieveProfessionalContext(
+export async function retrieveProfessionalContext(
   profile: ChildProfile,
   scenario: Scenario
-): { refs: string[]; digest: string } {
+): Promise<{ refs: string[]; digest: string }> {
   const query = [
     scenario.title,
     scenario.setting,
@@ -70,7 +70,7 @@ export function retrieveProfessionalContext(
     profile.sensory,
     profile.triggers,
   ].join(" ");
-  const chunks = retrieveKnowledge(query, 3);
+  const chunks = await retrieveKnowledge(query, 3);
   if (chunks.length === 0) {
     return { refs: [], digest: "（未检索到特定知识，依据自闭症干预通识回应）" };
   }
@@ -246,8 +246,8 @@ export async function createSession(
 ): Promise<Session> {
   // Agent 1: 场景理解
   const scenario = await understandScenario(profile, description);
-  // Agent 2: 知识检索（本地 RAG，同步）
-  const { refs, digest } = retrieveProfessionalContext(profile, scenario);
+  // Agent 2: 知识检索（RAGFlow / 本地双后端，自动回退）
+  const { refs, digest } = await retrieveProfessionalContext(profile, scenario);
 
   const session: Session = {
     id: store.newId(),

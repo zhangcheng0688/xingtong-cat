@@ -19,3 +19,4 @@ shots/
 *.log
 next-env.d.ts
 !.env.example
+tsconfig.tsbuildinfo

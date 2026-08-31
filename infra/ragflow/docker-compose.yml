@@ -1,0 +1,91 @@
+# RAGFlow 简化部署模板（官方标准版见 docs/RAGFlow接入.md 路径 A）
+# 本机 Docker 通过 colima 提供：先执行 colima start --cpu 4 --memory 8
+# 启动：cd infra/ragflow && docker compose up -d
+# 注意：RAGFlow 完整配置项很多，本文件是参考模板；
+#       若启动异常，请以官方仓库 ragflow/docker/ 的 compose 为准。
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: ragflow-es01
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      retries: 12
+
+  mysql:
+    image: mysql:8.0.39
+    container_name: ragflow-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=ragflow
+      - MYSQL_DATABASE=rag_flow
+      - TZ=Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-pragflow"]
+      interval: 10s
+      retries: 12
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: ragflow-minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=ragflow
+      - MINIO_ROOT_PASSWORD=infini_rag_flow
+    volumes:
+      - miniodata:/data
+
+  redis:
+    image: redis:7
+    container_name: ragflow-redis
+    command: redis-server --requirepass infini_rag_flow
+    volumes:
+      - redisdata:/data
+
+  ragflow:
+    image: infiniflow/ragflow:v0.24.0-slim
+    container_name: ragflow-server
+    # slim 版不含内置嵌入模型——我们外接阿里百炼 qwen3.7-text-embedding，正合适
+    ports:
+      - "9380:9380"
+    environment:
+      - DOC_ENGINE=elasticsearch
+      - ES_HOST=es01
+      - ES_PORT=9200
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=ragflow
+      - MYSQL_DATABASE=rag_flow
+      - MINIO_HOST=minio:9000
+      - MINIO_USER=ragflow
+      - MINIO_PASSWORD=infini_rag_flow
+      - REDIS_HOST=redis:6379
+      - REDIS_PASSWORD=infini_rag_flow
+      - SVR_HTTP_PORT=9380
+      - TZ=Asia/Shanghai
+    depends_on:
+      es01:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      redis:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  esdata:
+  mysqldata:
+  miniodata:
+  redisdata:
