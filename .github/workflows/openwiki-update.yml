@@ -33,11 +33,10 @@ jobs:
       - name: Run OpenWiki
         run: openwiki code --update --print
         env:
-          OPENWIKI_PROVIDER: openai-compatible
-          OPENAI_COMPATIBLE_API_KEY: ${{ secrets.OPENAI_COMPATIBLE_API_KEY }}
-          OPENAI_COMPATIBLE_BASE_URL: https://api.agent.space/v1
-          OPENWIKI_MODEL_ID: "gpt-5.6-terra"
-          OPENWIKI_OPENAI_COMPATIBLE_USE_RESPONSES_API: "true"
+          OPENWIKI_PROVIDER: anthropic
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_BASE_URL: https://open.bigmodel.cn/api/anthropic
+          OPENWIKI_MODEL_ID: "GLM-5-Turbo"
           OPENWIKI_PROVIDER_RETRY_ATTEMPTS: "8"
           OPENWIKI_TELEMETRY_DISABLED: "1"
 
