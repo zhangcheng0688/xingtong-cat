@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-09-06T13:54:11.643Z",
-  "command": "init",
-  "gitHead": "948dde837eab88a6761e164ff54fb303def55819",
-  "model": "gpt-5.6-terra",
+  "updatedAt": "2026-09-12T12:06:50.992Z",
+  "command": "update",
+  "gitHead": "ef5f81a7b0187987e908037c16230f89a4e8c79e",
+  "model": "GLM-5-Turbo",
   "status": "complete",
   "language": "zh-CN"
 }

@@ -1,7 +1,7 @@
 ---
 type: 部署与发布
 title: Docker、Compose、Caddy 与 GitHub 发布
-description: 说明生产镜像、Compose 服务、云初始化和 main 分支 SSH 发布流程及已知部署缺口。
+description: 说明生产镜像、Compose 服务、云初始化、main 分支 SSH 发布、OpenWiki 自动更新工作流及已知部署缺口。
 tags: [operations, deployment, docker]
 ---
 # Docker、Compose、Caddy 与 GitHub 发布
@@ -11,6 +11,8 @@ tags: [operations, deployment, docker]
 `infra/docker-compose.prod.yml` 组合 app、Caddy、Elasticsearch、MySQL、MinIO、Redis、RAGFlow。app 挂 `appstore:/app/data/store`；Caddy 对外映射 80/443，并按 `infra/cloud/Caddyfile` 反代 `app:3000`；RAGFlow 仅 `expose:9380` 供容器网使用，依赖 ES/MySQL health；ES/MySQL/MinIO/Redis 各用命名卷，RAGFlow 依赖其环境变量/默认回退。Caddy 证书状态在 caddy_data/caddy_config volumes；应用运行环境来自 `.env.production`。`bootstrap.sh` 安装 Docker、设 Elasticsearch `vm.max_map_count`、swap、UFW，并 clone 到 `/opt/xingtong-cat`。
 
 `.github/workflows/deploy.yml` 在 push main 或手动触发后，SSH 至服务器、`git pull --ff-only`、用 `.env.production` 执行 compose up build；它依赖 `SERVER_HOST`、`SERVER_USER`、`SERVER_SSH_KEY`。不要把任何实际变量写入 Wiki。
+
+`.github/workflows/openwiki-update.yml` 是第二个工作流：每日（cron `0 8 * * *`）或手动运行 `openwiki code --update`，以 PR 形式更新 `openwiki/` 知识库；它必须用 `fetch-depth: 0` 全量克隆，否则更新程序无法与上次记录的 gitHead 做 diff。它通过 `ANTHROPIC_BASE_URL` 指向 Anthropic 兼容网关并取模型 id 从环境变量，密钥来自仓库 secrets，本工作流不触及产品部署。
 
 ## 上线前检查
 
